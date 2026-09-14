@@ -1,5 +1,8 @@
+import { motion, useReducedMotion } from 'motion/react'
+
 function CareerCard({ role, isExpanded, onToggle }) {
   const detailsId = `${role.id}-details`
+  const shouldReduceMotion = useReducedMotion()
 
   return (
     <article className="career-entry">
@@ -12,17 +15,32 @@ function CareerCard({ role, isExpanded, onToggle }) {
       </p>
 
       <button
+        className="career-toggle"
         type="button"
         aria-expanded={isExpanded}
         aria-controls={detailsId}
-        onClick= {onToggle}
+        onClick={onToggle}
       >
         {isExpanded ? 'Hide details' : 'Show details'}
       </button>
 
-      <div id={detailsId} hidden={!isExpanded}>
+      <motion.div
+        id={detailsId}
+        initial={false}
+        animate={{
+          height: isExpanded ? 'auto' : 0,
+          opacity: isExpanded ? 1 : 0,
+        }}
+        transition={{
+          duration: shouldReduceMotion ? 0 : 0.3,
+          ease: 'easeInOut',
+        }}
+        style={{ overflow: 'hidden' }}
+        aria-hidden={!isExpanded}
+        inert={!isExpanded}
+      >
         <p className="career-summary">{role.summary}</p>
-      </div>
+      </motion.div>
     </article>
   )
 }

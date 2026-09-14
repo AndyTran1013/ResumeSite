@@ -94,4 +94,34 @@
 }
 .career-summary {
   line-height: 1.6;
+  margin-top: 16px;
+}
+
+.career-toggle {
+  margin-top: 16px;
+  padding: 10px 16px;
+  min-height: 44px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  font: inherit;
+  color: var(--text-h);
+  background-color: var(--bg);
+  cursor: pointer;
+  transition: background-color 300ms ease;
+}
+
+.career-toggle:hover,
+.career-toggle[aria-expanded="true"] {
+  background-color: var(--accent-bg);
+}
+
+.career-toggle:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .career-toggle {
+    transition: none;
+  }
 }

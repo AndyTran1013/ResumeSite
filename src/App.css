@@ -92,3 +92,6 @@
 .career-entry p + p {
   margin-top: 8px;
 }
+.career-summary {
+  line-height: 1.6;
+}

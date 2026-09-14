@@ -1,7 +1,10 @@
 import './App.css'
+import CareerCard from './components/CareerCard'
+import {careerRoles} from './data/career'
+import { useState } from 'react'
 
 function App() {
- 
+  const [expandedRoleId, setExpandedRoleId] = useState(null)
   return (
     <>
       <section id="center">
@@ -25,17 +28,19 @@ function App() {
       <section className="career" aria-labelledby="career-heading">
         <h2 id="career-heading">Career experience</h2>
 
-        <article className="career-entry">
-          <h3>Senior Manager, Personal Lending Credit Strategies</h3>
+      {careerRoles.map((role) => (
+        <CareerCard
+          key={role.id}
+          role={role}
+          isExpanded={expandedRoleId === role.id}
+          onToggle={() =>
+            setExpandedRoleId((previousId) =>
+              previousId === role.id ? null : role.id
+            )
+          }
+        />
+      ))}
 
-          <p>BMO · Enterprise Risk and Portfolio Management</p>
-          <p>
-            <time dateTime="2024-03">March 2024</time>
-            {' – '}
-            <time dateTime="2026-09-01">September 2026</time>
-          </p>
-          
-        </article>
       </section>
 
       

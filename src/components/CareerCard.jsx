@@ -52,7 +52,20 @@ function CareerCard({ role, isExpanded, onToggle }) {
         inert={!isExpanded}
       >
         <p className="career-summary">{role.summary}</p>
+
+        {role.achievements?.length > 0 && (
+          <div className="career-achievements">
+            <h4>Achievements</h4>
+            <ul>
+              {role.achievements.map((achievement) => (
+                <li key={achievement}>{achievement}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
       </motion.div>
+
     </article>
   )
 }

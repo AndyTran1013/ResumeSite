@@ -8,7 +8,11 @@ export const careerRoles = [
         endDate: '2026-09-01',
         startLabel: 'March 2024',
         endLabel: 'September 2026',
-        summary: 'Developed personal lending strategies and improved the analytical processes used to monitor portfolio performance'
+        summary: 'Developed personal lending strategies and improved the analytical processes used to monitor portfolio performance',
+        achievements: [
+            'Reduced pre-approval campaign runtime by approximately two hours through SQL query optimization.',
+            'Improved code clarity and documentation for future maintenance.',
+        ]
     },
 
     {

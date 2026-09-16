@@ -2,9 +2,70 @@ import './App.css'
 import CareerCard from './components/CareerCard'
 import {careerRoles} from './data/career'
 import { useState } from 'react'
+import { animate } from 'motion'
 
 function App() {
   const [expandedRoleId, setExpandedRoleId] = useState(null)
+
+  function handleExploreClick(event) {
+    // Preserve modified clicks, such as Ctrl-click.
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+      return
+    }
+
+    // Keep normal link navigation for reduced-motion users.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return
+    }
+
+    const heading = document.getElementById('career-heading')
+    if (!heading) return
+
+    event.preventDefault()
+
+    const headingTop = heading.getBoundingClientRect().top + window.scrollY
+    const maxScroll = Math.max(
+      0,
+      document.documentElement.scrollHeight - window.innerHeight
+    )
+    const destination = Math.max(0, Math.min(headingTop, maxScroll))
+    const listeners = new AbortController()
+
+    const animation = animate(window.scrollY, destination, {
+      duration: 0.9,
+      ease: 'easeInOut',
+
+      onUpdate: (position) => {
+        window.scrollTo({ top: position, behavior: 'instant' })
+      },
+
+      onComplete: () => {
+        listeners.abort()
+        heading.focus({ preventScroll: true })
+
+        if (window.location.hash !== '#career-heading') {
+          window.history.pushState(
+            window.history.state,
+            '',
+            '#career-heading'
+          )
+        }
+      },
+    })
+
+    function stopScrolling() {
+      animation.stop()
+      listeners.abort()
+    }
+
+    for (const eventName of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {
+      window.addEventListener(eventName, stopScrolling, {
+        passive: true,
+        signal: listeners.signal,
+      })
+    }
+  }
+
   return (
     <>
       <section id="center">
@@ -18,7 +79,11 @@ function App() {
             Exploring opportunities in data analytics and automation.
           </p>
           
-          <a className="explore-link" href="#career-heading">
+          <a
+            className="explore-link"
+            href="#career-heading"
+            onClick={handleExploreClick}
+          >
             Explore my career
           </a>
 
@@ -26,7 +91,7 @@ function App() {
       </section>
 
       <section className="career" aria-labelledby="career-heading">
-        <h2 id="career-heading">Career experience</h2>
+        <h2 id="career-heading" tabIndex={-1}>Career experience</h2>
 
       <ol className="career-timeline">
         {careerRoles.map((role) => (

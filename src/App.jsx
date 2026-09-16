@@ -28,18 +28,21 @@ function App() {
       <section className="career" aria-labelledby="career-heading">
         <h2 id="career-heading">Career experience</h2>
 
-      {careerRoles.map((role) => (
-        <CareerCard
-          key={role.id}
-          role={role}
-          isExpanded={expandedRoleId === role.id}
-          onToggle={() =>
-            setExpandedRoleId((previousId) =>
-              previousId === role.id ? null : role.id
-            )
-          }
-        />
-      ))}
+      <ol className="career-timeline">
+        {careerRoles.map((role) => (
+          <li className="timeline-item" key={role.id}>
+            <CareerCard
+              role={role}
+              isExpanded={expandedRoleId === role.id}
+              onToggle={() =>
+                setExpandedRoleId((previousId) =>
+                  previousId === role.id ? null : role.id
+                )
+              }
+            />
+          </li>
+        ))}
+      </ol>
 
       </section>
 

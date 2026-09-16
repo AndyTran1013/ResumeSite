@@ -6,7 +6,19 @@ function CareerCard({ role, isExpanded, onToggle }) {
 
   return (
     <article className="career-entry">
-      <h3>{role.title}</h3>
+      <div className="career-heading">
+        <button
+          className="company-mark"
+          type="button"
+          aria-label={`${isExpanded ? 'Hide' : 'Show'} details for ${role.title} at ${role.company}`}
+          aria-expanded={isExpanded}
+          aria-controls={detailsId}
+          onClick={onToggle}
+        >
+          {role.company}
+        </button>
+        <h3>{role.title}</h3>
+      </div>
       <p>{role.company} · {role.department}</p>
       <p>
         <time dateTime={role.startDate}>{role.startLabel}</time>

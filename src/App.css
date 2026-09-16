@@ -159,3 +159,42 @@
   max-width: none;
   margin: 0;
 }
+
+.company-mark {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background-color: var(--accent-bg);
+  color: var(--text-h);
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.company-mark:hover {
+  border-color: currentColor;
+}
+
+.company-mark:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 4px;
+}
+
+.career-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.career-heading .company-mark {
+  flex-shrink: 0;
+}
+
+.career-heading h3 {
+  margin: 0;
+}

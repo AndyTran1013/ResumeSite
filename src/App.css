@@ -1,12 +1,124 @@
 
 #center {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 100svh;
   box-sizing: border-box;
-  padding: 48px 20px;
+  padding: 96px 8% 64px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  color: #625c70;
+  background: #f9f6f0;
+}
+
+#center::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: radial-gradient(#52607020 0.8px, transparent 0.8px);
+  background-size: 12px 12px;
+  content: '';
+}
+
+.home-navigation {
+  position: absolute;
+  top: 18px;
+  left: 5%;
+  z-index: 3;
+  padding: 0;
+}
+
+.home-art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.home-art > svg {
+  position: absolute;
+  inset: 13% 0 auto;
+  width: 100%;
+  height: 52%;
+}
+
+.home-art path {
+  fill: none;
+  stroke: #aaa0a3;
+  stroke-width: 2;
+  stroke-dasharray: 5 9;
+}
+
+.home-orbit {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  box-shadow: 0 0 0 10px #ffffff60, 0 0 0 11px #b1b3be2e;
+}
+
+.home-orbit > span {
+  position: absolute;
+  inset: 18px;
+  border: 1px solid #ffffffb0;
+  border-radius: inherit;
+}
+
+.home-orbit > span:last-child {
+  inset: 36px;
+  border-width: 12px;
+}
+
+.home-orbit--blue {
+  top: -170px;
+  left: -120px;
+  width: 390px;
+  height: 390px;
+  background: #c5eaff;
+}
+
+.home-orbit--blue > span:last-child { border-color: #78bee8; }
+
+.home-orbit--rose {
+  top: 13%;
+  right: 7%;
+  width: 170px;
+  height: 170px;
+  background: #ffd5df;
+}
+
+.home-orbit--rose > span:last-child { border-color: #ec96a9; }
+
+.home-orbit--yellow {
+  right: -150px;
+  bottom: -220px;
+  width: 470px;
+  height: 470px;
+  background: #f8e5a0;
+}
+
+.home-orbit--yellow > span:last-child { border-color: #e9cc6f; }
+
+.home-star,
+.home-spark {
+  position: absolute;
+  line-height: 1;
+}
+
+.home-star {
+  top: 26%;
+  left: 39%;
+  color: #ca6b39;
+  font-size: 52px;
+}
+
+.home-spark {
+  right: 28%;
+  bottom: 19%;
+  color: #7670b3;
+  font-size: 46px;
 }
 
 #spacer {
@@ -40,25 +152,61 @@
 }
 
 .intro {
-  max-width: 640px;
-  padding: 0 20px;
-  text-align: center;
+  position: relative;
+  z-index: 1;
+  width: min(720px, 72vw);
+  max-width: 720px;
+  margin-left: clamp(0px, 6vw, 110px);
+  padding: 0;
+  text-align: left;
+}
+
+.intro-eyebrow {
+  color: #625c70;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.intro h1 {
+  margin: 18px 0 24px;
+  color: #272c43;
+  font-size: clamp(58px, 8vw, 92px);
+  font-weight: 650;
+  line-height: 0.95;
+  letter-spacing: -4px;
+}
+
+.intro h1 span { color: #ca6b39; }
+
+.intro-lede {
+  max-width: 660px;
+  color: #272c43;
+  font-size: clamp(20px, 2.2vw, 28px);
+  line-height: 1.35;
 }
 
 .explore-link {
   display: inline-block;
-  margin-top: 24px;
+  margin-top: 30px;
   padding: 12px 20px;
-  border: 2px solid currentColor;
-  border-radius: 8px;
-  color: var(--text-h);
-  background-color: var(--bg);
+  border: 1px solid #d0cbc5;
+  border-radius: 999px;
+  color: #272c43;
+  background: #fffcf7;
+  box-shadow: 0 8px 24px #303a5014;
   font-weight: 600;
   text-decoration: none;
+  transition: background-color 300ms ease, box-shadow 300ms ease, transform 300ms ease;
 }
 
+.explore-link::after { margin-left: 10px; content: '↓'; }
+
 .explore-link:hover {
-  background-color: var(--accent-bg);
+  background: #fff;
+  box-shadow: 0 10px 30px #303a5024;
+  transform: translateY(-2px);
 }
 
 .explore-link:focus-visible {
@@ -67,7 +215,7 @@
 }
 
 .intro p + p {
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .career {
@@ -239,8 +387,60 @@
 
 /* Give the text more room on small screens. */
 @media (max-width: 600px) {
+  #center {
+    padding: 92px 24px 54px;
+  }
+
+  .home-navigation {
+    left: 24px;
+  }
+
   .intro {
-    padding: 0;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .intro h1 {
+    font-size: clamp(52px, 18vw, 72px);
+    letter-spacing: -3px;
+  }
+
+  .intro-lede {
+    font-size: 20px;
+  }
+
+  .home-orbit--blue {
+    top: -105px;
+    left: -95px;
+    width: 245px;
+    height: 245px;
+  }
+
+  .home-orbit--rose {
+    top: 19%;
+    right: -55px;
+    width: 125px;
+    height: 125px;
+    opacity: 0.72;
+  }
+
+  .home-orbit--yellow {
+    right: -110px;
+    bottom: -135px;
+    width: 290px;
+    height: 290px;
+  }
+
+  .home-star {
+    top: 23%;
+    left: 71%;
+    font-size: 36px;
+  }
+
+  .home-spark {
+    right: 18%;
+    bottom: 18%;
+    font-size: 34px;
   }
 
   .career {

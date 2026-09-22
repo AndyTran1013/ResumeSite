@@ -236,13 +236,16 @@ and deployment details as they are built.
 - Current refinement: Restore the detail text fade-and-slide entrance by allowing the first AnimatePresence child to animate when a company page opens.
 - Current refinement: A multiple-role selection first completes the company-page entrance, then uses the same 0.9-second Motion ease-in-out scrolling pattern as “Explore my career” to reach the requested role. User input stops that automatic scroll.
 - Current refinement: The presentation is now the default desktop career experience; it no longer requires the `?preview=morph` URL parameter. The verified mobile timeline remains the small-screen experience.
+- Current refinement: The visible career heading is replaced with a temporary Home/Career navigation bar, creating a foundation for future top-level pages.
+- Current refinement: Home and Career navigation share one custom 0.9-second ease-in-out scroll helper, providing a reusable pattern for future top-level page links.
+- Current refinement: Roadmap step 3 is underway: the splash now shares the career presentation's warm background, dotted texture, tonal circles, playful path details, typography, rounded controls, and Home/Career navigation language.
 - Later: Add earlier RBC roles, refine achievements, and choose public assets.
 
 ## Next-Step Roadmap
 
-1. Polish the career overview: refine heading placement, spacing, company marks, and decorative elements; hide overview headings when a role screen opens.
-2. Refine role screens: improve content hierarchy, keep the return control easy to reach, and decide whether company screens with multiple roles should stack roles or use a selector.
-3. Bring the home screen into the same theme: apply the career section's colour, circle, typography, and playful visual language around the introduction and career transition.
+1. Complete for now — Polish the career overview: refine heading placement, spacing, company marks, and decorative elements; hide overview headings when a role screen opens.
+2. Complete for now — Refine role screens: improve content hierarchy, keep the return control easy to reach, and decide whether company screens with multiple roles should stack roles or use a selector.
+3. In progress — Bring the home screen into the same theme: apply the career section's colour, circle, typography, and playful visual language around the introduction and career transition.
 4. Add navigation and a downloadable PDF resume: begin with Home, Career, and Download resume; use an approved public PDF while keeping the private source PDF ignored.
 5. Complete responsive and accessibility testing: bring the visual theme to mobile without sacrificing readable scrolling; test Firefox, keyboard navigation, reduced motion, zoom, and shorter laptop screens.
 6. Promote the prototype to the main design: remove the preview switch after approval, consolidate shared styling and detail rendering, then make a local Git checkpoint. Push only when Andy asks.

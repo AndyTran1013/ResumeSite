@@ -1,6 +1,12 @@
 .career-presentation { display: none; }
 
-/* Optional desktop experiment. The existing small-screen timeline stays intact. */
+.site-navigation { display: flex; justify-content: center; gap: 8px; padding: 18px 24px 0; }
+.site-navigation a { border: 1px solid transparent; border-radius: 999px; color: #625c70; font-size: 14px; font-weight: 650; padding: 8px 14px; text-decoration: none; transition: background-color 300ms ease, color 300ms ease; }
+.site-navigation a:hover { background: #ffffff80; color: #272c43; }
+.site-navigation a:focus-visible { outline: 3px solid #6246a6; outline-offset: 3px; }
+.site-navigation a[aria-current='page'] { background: #fffcf7; border-color: #d0cbc5; color: #272c43; }
+
+/* Desktop career presentation. The existing small-screen timeline stays intact. */
 @media (min-width: 901px) {
   .site-shell--career-presentation {
     width: 100%;
@@ -20,22 +26,8 @@
     color: #272c43;
   }
   .career--career-presentation > .career-timeline { display: none; }
-  .career--career-presentation > h2 {
-    max-height: 48px;
-    padding: 24px 5% 0;
-    margin: 0;
-    font-size: 16px;
-    text-align: left;
-    color: #625c70;
-    overflow: hidden;
-    transition: max-height 300ms ease, padding 300ms ease, opacity 200ms ease;
-  }
-  .career--career-presentation.career--detail > h2 {
-    max-height: 0;
-    padding-top: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
+  .career--career-presentation > .site-navigation { justify-content: flex-start; padding: 18px 5% 0; }
+  .career--career-presentation.career--detail > .site-navigation { display: none; }
   .career-presentation {
     display: flex;
     flex-direction: column;

@@ -1,11 +1,13 @@
 import './App.css'
 import CareerCard from './components/CareerCard'
+import CareerPresentation from './components/CareerPresentation'
 import {careerRoles} from './data/career'
 import { useState } from 'react'
 import { animate } from 'motion'
 
 function App() {
   const [expandedRoleId, setExpandedRoleId] = useState(null)
+  const showMorphPreview = new URLSearchParams(window.location.search).get('preview') === 'morph'
 
   function handleExploreClick(event) {
     // Preserve modified clicks, such as Ctrl-click.
@@ -67,7 +69,7 @@ function App() {
   }
 
   return (
-    <>
+    <div className={`site-shell${showMorphPreview ? ' site-shell--preview' : ''}`}>
       <section id="center">
         <div className="intro">
           <h1>Andy Tran</h1>
@@ -90,8 +92,9 @@ function App() {
         </div>
       </section>
 
-      <section className="career" aria-labelledby="career-heading">
+      <section className={`career${showMorphPreview ? ' career--preview' : ''}`} aria-labelledby="career-heading">
         <h2 id="career-heading" tabIndex={-1}>Career experience</h2>
+        {showMorphPreview && <CareerPresentation roles={careerRoles} />}
 
       <ol className="career-timeline">
         {careerRoles.map((role) => (
@@ -118,7 +121,7 @@ function App() {
 
       <div className="ticks"></div>
       <section id="spacer"></section>
-    </>
+    </div>
   )
 }
 

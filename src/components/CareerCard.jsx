@@ -53,8 +53,19 @@ function CareerCard({ role, isExpanded, onToggle }) {
       >
         <p className="career-summary">{role.summary}</p>
 
+        {role.responsibilities?.length > 0 && (
+          <div className="career-detail-section">
+            <h4>Responsibilities</h4>
+            <ul>
+              {role.responsibilities.map((responsibility) => (
+                <li key={responsibility}>{responsibility}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {role.achievements?.length > 0 && (
-          <div className="career-achievements">
+          <div className="career-detail-section">
             <h4>Achievements</h4>
             <ul>
               {role.achievements.map((achievement) => (
@@ -64,6 +75,27 @@ function CareerCard({ role, isExpanded, onToggle }) {
           </div>
         )}
 
+        {role.projects?.length > 0 && (
+          <div className="career-detail-section">
+            <h4>Relevant work</h4>
+            <ul>
+              {role.projects.map((project) => (
+                <li key={project}>{project}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {role.skills?.length > 0 && (
+          <div className="career-skills">
+            <h4>Skills and technologies</h4>
+            <ul className="skill-list" role="list">
+              {role.skills.map((skill) => (
+                <li key={skill}>{skill}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </motion.div>
 
     </article>

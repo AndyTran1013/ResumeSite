@@ -211,9 +211,33 @@ and deployment details as they are built.
 - Completed: Working content draft and career-direction clarification.
 - Completed: Initial content review and approval.
 - Completed: Development environment check (Node.js 20.10.0, npm 10.2.3, Git 2.43.0).
-- Current: Update Node.js to a current LTS release compatible with Vite.
-- Next: Create and run the React/Vite starter app.
+- Completed: React/Vite setup, introduction, four-role timeline, and reusable career cards.
+- Completed: Coordinated card expansion, reduced-motion support, and company-mark controls.
+- Completed: GitHub Pages deployment via .github/workflows/deploy.yml; preserve its base-path handling.
+- Completed: Expanded achievements and skill lists, verified in the browser by Andy.
+- Completed: Responsibilities and relevant work added to all four roles.
+- Completed: Small-screen spacing and card-header layout; Andy verified at 375px and wider mobile widths.
+- Current: Optional desktop career presentation prototype at `?preview=morph`; awaiting Andy's Firefox review.
+- Direction: Vibrant, whimsical company overview with Morph-like transitions into role screens, inspired primarily by `inspo/1.mp4`.
+- Prototype: Three company landmarks, separate CIBC role buttons, moving company marks and expanding concentric rings. Text fades/translates without whole-card scaling. Escape or Back returns focus to the originating control.
+- Preserved: Normal URL uses the existing timeline; preview uses the existing timeline at 900px and below, including its verified height animation.
+- Next: Andy tests the desktop motion and visual direction before further design or animation work.
+- Latest refinement: Desktop preview fills the browser width and at least one viewport in height, with natural scrolling for longer content. Decorative stars/path sit above chapter headings. Company marks open all roles at that bank; job-title buttons open only the selected role. Awaiting Firefox verification of this batch.
 - Later: Add earlier RBC roles, refine achievements, and choose public assets.
+
+## Next-Step Roadmap
+
+1. Polish the career overview: refine heading placement, spacing, company marks, and decorative elements; hide overview headings when a role screen opens.
+2. Refine role screens: improve content hierarchy, keep the return control easy to reach, and decide whether company screens with multiple roles should stack roles or use a selector.
+3. Bring the home screen into the same theme: apply the career section's colour, circle, typography, and playful visual language around the introduction and career transition.
+4. Add navigation and a downloadable PDF resume: begin with Home, Career, and Download resume; use an approved public PDF while keeping the private source PDF ignored.
+5. Complete responsive and accessibility testing: bring the visual theme to mobile without sacrificing readable scrolling; test Firefox, keyboard navigation, reduced motion, zoom, and shorter laptop screens.
+6. Promote the prototype to the main design: remove the preview switch after approval, consolidate shared styling and detail rendering, then make a local Git checkpoint. Push only when Andy asks.
+7. Add Projects: begin with this portfolio, then add suitable Python, analytics, or automation projects that explain the problem, approach, and an inspectable result.
+8. Add Interests and remaining career content: use interests to show personality; add earlier RBC roles, education, and suitable contact links as their details are ready.
+
+Learning approach: Batch familiar data, JSX, and CSS changes. Pause and explain
+new concepts before introducing them. Only push when Andy explicitly asks.
 
 This file is a content planning document. The website will use a separate
 structured career data file when we reach the data and components phase.

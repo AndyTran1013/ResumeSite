@@ -217,12 +217,12 @@ and deployment details as they are built.
 - Completed: Expanded achievements and skill lists, verified in the browser by Andy.
 - Completed: Responsibilities and relevant work added to all four roles.
 - Completed: Small-screen spacing and card-header layout; Andy verified at 375px and wider mobile widths.
-- Current: Optional desktop career presentation prototype at `?preview=morph`; awaiting Andy's Firefox review.
+- Current: Desktop career presentation is the default experience; the existing timeline remains at 900px and below.
 - Direction: Vibrant, whimsical company overview with Morph-like transitions into role screens, inspired primarily by `inspo/1.mp4`.
 - Prototype: Three company landmarks, separate CIBC role buttons, moving company marks and expanding concentric rings. Text fades/translates without whole-card scaling. Escape or Back returns focus to the originating control.
-- Preserved: Normal URL uses the existing timeline; preview uses the existing timeline at 900px and below, including its verified height animation.
+- Preserved: Small screens use the existing verified timeline and height-based details animation.
 - Next: Andy tests the desktop motion and visual direction before further design or animation work.
-- Latest refinement: Desktop preview fills the browser width and at least one viewport in height, with natural scrolling for longer content. Decorative stars/path sit above chapter headings. Company marks open all roles at that bank; job-title buttons open only the selected role. Awaiting Firefox verification of this batch.
+- Latest refinement: Desktop presentation fills the browser width and at least one viewport in height, with natural scrolling for longer content. Decorative stars/path sit above chapter headings. Company marks open all roles at that bank; job-title buttons open only the selected role.
 - Current refinement: Hide career overview headings while a role is open, move the exploration prompt into the overview introduction, and prepare brand-inspired company circles plus a public logo-asset folder.
 - Latest refinement: BMO and CIBC use icon-only PNG logos with names below; RBC retains its SVG crest. The RBC circle now uses a brighter, tonal yellow fill and inner ring to match the single-palette treatment of the other circles.
 - Latest refinement: CIBC uses a non-destructive white-background PNG variant so its icon blends into the company-mark circle. BMO and CIBC labels use the site's regular typography treatment rather than a separate logo-style treatment.
@@ -233,6 +233,9 @@ and deployment details as they are built.
 - Current refinement: Opening a specific role displays every role at that company and scrolls the requested section into view. The fixed full-viewport detail layer locks the splash page, scrolls its orbit and logo with the content, and exposes only detail scrolling, Back, and the company rail.
 - Current refinement: The selected company orbit and mark stay alongside the detail viewport while its role content scrolls. Role-target scrolling runs after the detail DOM is rendered, including the first detail-screen transition.
 - Current refinement: The detail-page Back control and company rail stay alongside the selected company graphic while details scroll.
+- Current refinement: Restore the detail text fade-and-slide entrance by allowing the first AnimatePresence child to animate when a company page opens.
+- Current refinement: A multiple-role selection first completes the company-page entrance, then uses the same 0.9-second Motion ease-in-out scrolling pattern as “Explore my career” to reach the requested role. User input stops that automatic scroll.
+- Current refinement: The presentation is now the default desktop career experience; it no longer requires the `?preview=morph` URL parameter. The verified mobile timeline remains the small-screen experience.
 - Later: Add earlier RBC roles, refine achievements, and choose public assets.
 
 ## Next-Step Roadmap

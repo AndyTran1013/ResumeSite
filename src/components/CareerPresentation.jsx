@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react'
 import './CareerPresentation.css'
 
 const companies = [
@@ -49,7 +49,9 @@ export default function CareerPresentation({ roles, onDetailChange }) {
     const targetId = pendingRoleId.current
     if (!targetId) return undefined
 
-    const frame = window.requestAnimationFrame(() => {
+    const listeners = new AbortController()
+    let scrollAnimation
+    const delay = window.setTimeout(() => {
       const target = roleSections.current[targetId]
       const detailStage = stage.current
       if (!target || !detailStage) return
@@ -58,17 +60,49 @@ export default function CareerPresentation({ roles, onDetailChange }) {
         - detailStage.getBoundingClientRect().top
         + detailStage.scrollTop
         - 24
-      detailStage.scrollTo({ top: targetTop, behavior: reduceMotion ? 'auto' : 'smooth' })
-      target.querySelector('h3')?.focus({ preventScroll: true })
-      pendingRoleId.current = null
-    })
+      const destination = Math.max(0, Math.min(targetTop, detailStage.scrollHeight - detailStage.clientHeight))
 
-    return () => window.cancelAnimationFrame(frame)
+      if (reduceMotion) {
+        detailStage.scrollTo({ top: destination, behavior: 'instant' })
+        target.querySelector('h3')?.focus({ preventScroll: true })
+        pendingRoleId.current = null
+        return
+      }
+
+      const stopScroll = () => {
+        scrollAnimation?.stop()
+        pendingRoleId.current = null
+        listeners.abort()
+      }
+
+      for (const eventName of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {
+        detailStage.addEventListener(eventName, stopScroll, { once: true, signal: listeners.signal })
+      }
+
+      scrollAnimation = animate(detailStage.scrollTop, destination, {
+        duration: 0.9,
+        ease: 'easeInOut',
+        onUpdate: (position) => {
+          detailStage.scrollTo({ top: position, behavior: 'instant' })
+        },
+        onComplete: () => {
+          listeners.abort()
+          target.querySelector('h3')?.focus({ preventScroll: true })
+          pendingRoleId.current = null
+        },
+      })
+    }, reduceMotion ? 0 : 450)
+
+    return () => {
+      window.clearTimeout(delay)
+      scrollAnimation?.stop()
+      listeners.abort()
+    }
   }, [selectedId, reduceMotion])
 
   function openRole(role, event) {
     origin.current = event.currentTarget
-    pendingRoleId.current = role.id
+    pendingRoleId.current = roles.filter((item) => item.company === role.company).length > 1 ? role.id : null
     setTravelDirection(1)
     setSelectedId(role.id)
     onDetailChange(true)
@@ -232,7 +266,7 @@ export default function CareerPresentation({ roles, onDetailChange }) {
                 )
               })}
             </nav>
-            <AnimatePresence initial={false} mode="wait" custom={travelDirection}>
+            <AnimatePresence mode="wait" custom={travelDirection}>
               <motion.div
                 className="role-screen-content-group"
                 key={selected.company}
@@ -240,7 +274,7 @@ export default function CareerPresentation({ roles, onDetailChange }) {
                 initial={(direction) => ({ opacity: reduceMotion ? 1 : 0, x: reduceMotion ? 0 : direction * 36 })}
                 animate={{ opacity: 1, x: 0 }}
                 exit={(direction) => ({ opacity: reduceMotion ? 1 : 0, x: reduceMotion ? 0 : direction * -36 })}
-                transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeInOut' }}
+                transition={{ duration: reduceMotion ? 0 : 0.4, ease: 'easeInOut' }}
               >
                 {visibleRoles.map((role, index) => (
                   <article

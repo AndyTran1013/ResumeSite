@@ -2,15 +2,15 @@
 
 /* Optional desktop experiment. The existing small-screen timeline stays intact. */
 @media (min-width: 901px) {
-  .site-shell--preview {
+  .site-shell--career-presentation {
     width: 100%;
     border-inline: 0;
   }
-  .site-shell--preview > .ticks,
-  .site-shell--preview > #spacer {
+  .site-shell--career-presentation > .ticks,
+  .site-shell--career-presentation > #spacer {
     display: none;
   }
-  .career--preview {
+  .career--career-presentation {
     display: flex;
     flex-direction: column;
     min-height: 100svh;
@@ -19,8 +19,8 @@
     background: #f9f6f0;
     color: #272c43;
   }
-  .career--preview > .career-timeline { display: none; }
-  .career--preview > h2 {
+  .career--career-presentation > .career-timeline { display: none; }
+  .career--career-presentation > h2 {
     max-height: 48px;
     padding: 24px 5% 0;
     margin: 0;
@@ -30,7 +30,7 @@
     overflow: hidden;
     transition: max-height 300ms ease, padding 300ms ease, opacity 200ms ease;
   }
-  .career--preview.career--detail > h2 {
+  .career--career-presentation.career--detail > h2 {
     max-height: 0;
     padding-top: 0;
     opacity: 0;

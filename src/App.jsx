@@ -8,7 +8,6 @@ import { animate } from 'motion'
 function App() {
   const [expandedRoleId, setExpandedRoleId] = useState(null)
   const [isPresentationDetail, setIsPresentationDetail] = useState(false)
-  const showMorphPreview = new URLSearchParams(window.location.search).get('preview') === 'morph'
 
   function handleExploreClick(event) {
     // Preserve modified clicks, such as Ctrl-click.
@@ -70,7 +69,7 @@ function App() {
   }
 
   return (
-    <div className={`site-shell${showMorphPreview ? ' site-shell--preview' : ''}`}>
+    <div className="site-shell site-shell--career-presentation">
       <section id="center">
         <div className="intro">
           <h1>Andy Tran</h1>
@@ -93,7 +92,7 @@ function App() {
         </div>
       </section>
 
-      <section className={`career${showMorphPreview ? ' career--preview' : ''}${isPresentationDetail ? ' career--detail' : ''}`} aria-labelledby="career-heading">
+      <section className={`career career--career-presentation${isPresentationDetail ? ' career--detail' : ''}`} aria-labelledby="career-heading">
         <h2
           id="career-heading"
           tabIndex={-1}
@@ -101,12 +100,10 @@ function App() {
         >
           Career experience
         </h2>
-        {showMorphPreview && (
-          <CareerPresentation
-            roles={careerRoles}
-            onDetailChange={setIsPresentationDetail}
-          />
-        )}
+        <CareerPresentation
+          roles={careerRoles}
+          onDetailChange={setIsPresentationDetail}
+        />
 
       <ol className="career-timeline">
         {careerRoles.map((role) => (

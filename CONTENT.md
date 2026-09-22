@@ -223,6 +223,16 @@ and deployment details as they are built.
 - Preserved: Normal URL uses the existing timeline; preview uses the existing timeline at 900px and below, including its verified height animation.
 - Next: Andy tests the desktop motion and visual direction before further design or animation work.
 - Latest refinement: Desktop preview fills the browser width and at least one viewport in height, with natural scrolling for longer content. Decorative stars/path sit above chapter headings. Company marks open all roles at that bank; job-title buttons open only the selected role. Awaiting Firefox verification of this batch.
+- Current refinement: Hide career overview headings while a role is open, move the exploration prompt into the overview introduction, and prepare brand-inspired company circles plus a public logo-asset folder.
+- Latest refinement: BMO and CIBC use icon-only PNG logos with names below; RBC retains its SVG crest. The RBC circle now uses a brighter, tonal yellow fill and inner ring to match the single-palette treatment of the other circles.
+- Latest refinement: CIBC uses a non-destructive white-background PNG variant so its icon blends into the company-mark circle. BMO and CIBC labels use the site's regular typography treatment rather than a separate logo-style treatment.
+- Current refinement: Cap desktop role-screen content at 1120px so ultrawide monitors retain a full-width presentation backdrop without spreading related detail sections across the viewport. Selected company marks grow from 100px to 250px with proportional logo scaling, while overview marks retain their original size.
+- Current refinement: Expanded company screens have Previous and Next navigation. Motion animates the outgoing content away and brings the adjacent company content in from the corresponding direction.
+- Current refinement: Expanded company screens use a compact top-right SVG wordmark rail. Clicking a company reuses the existing directional page transition.
+- Current refinement: Inactive company-rail SVGs sit directly on the page background with reduced opacity; only the active company has a subtle circular ring.
+- Current refinement: Opening a specific role displays every role at that company and scrolls the requested section into view. The fixed full-viewport detail layer locks the splash page, scrolls its orbit and logo with the content, and exposes only detail scrolling, Back, and the company rail.
+- Current refinement: The selected company orbit and mark stay alongside the detail viewport while its role content scrolls. Role-target scrolling runs after the detail DOM is rendered, including the first detail-screen transition.
+- Current refinement: The detail-page Back control and company rail stay alongside the selected company graphic while details scroll.
 - Later: Add earlier RBC roles, refine achievements, and choose public assets.
 
 ## Next-Step Roadmap

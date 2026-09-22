@@ -21,11 +21,20 @@
   }
   .career--preview > .career-timeline { display: none; }
   .career--preview > h2 {
+    max-height: 48px;
     padding: 24px 5% 0;
     margin: 0;
     font-size: 16px;
     text-align: left;
     color: #625c70;
+    overflow: hidden;
+    transition: max-height 300ms ease, padding 300ms ease, opacity 200ms ease;
+  }
+  .career--preview.career--detail > h2 {
+    max-height: 0;
+    padding-top: 0;
+    opacity: 0;
+    pointer-events: none;
   }
   .career-presentation {
     display: flex;
@@ -34,7 +43,7 @@
     text-align: left;
     color: #272c43;
   }
-  .presentation-intro { padding: 16px 5% 18px; }
+  .presentation-intro { padding: 16px 5% 18px; box-sizing: border-box; }
   .presentation-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
   .presentation-intro .presentation-eyebrow { color: #625c70; }
   .presentation-intro h3 { font-size: clamp(32px, 4vw, 42px); line-height: 1.1; margin: 10px 0 12px; color: #272c43; letter-spacing: -1.5px; }
@@ -47,6 +56,30 @@
     background: #f9f6f0;
     isolation: isolate;
   }
+  .career--detail .career-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    min-height: 0;
+    height: 100svh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .career--detail .company-orbit,
+  .career--detail .presentation-company {
+    position: fixed;
+  }
+  .career--detail .journey-back {
+    position: fixed;
+    top: 28px;
+    left: 36px;
+    z-index: 11;
+  }
+  .career--detail .company-navigation {
+    position: fixed;
+    z-index: 11;
+  }
   .stage-grain { position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(#52607020 0.8px, transparent 0.8px); background-size: 12px 12px; pointer-events: none; }
   .journey-decoration { position: absolute; inset: 0; pointer-events: none; }
   .journey-decoration svg { position: absolute; width: 100%; height: 150px; top: 90px; }
@@ -56,14 +89,19 @@
   .company-orbit { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; background: var(--company-tint); pointer-events: none; box-shadow: 0 0 0 10px #ffffff60, 0 0 0 11px #b1b3be35; }
   .company-orbit > span { position: absolute; inset: 16px; border: 1px solid #ffffffb0; border-radius: 50%; }
   .company-orbit > span:nth-child(2) { inset: 32px; }
-  .company-orbit > span:nth-child(3) { inset: 48px; border: 16px solid #ffffff55; }
-  .presentation-company { position: absolute; margin: -110px 0 0 -50px; width: 100px; height: 100px; border-radius: 50%; border: 1px solid #ffffff; background: #fffcf7; color: var(--company-colour); box-shadow: 0 10px 30px #303a501a; font-family: inherit; font-size: 24px; font-weight: 800; cursor: pointer; }
+  .company-orbit > span:nth-child(3) { inset: 48px; border: 16px solid var(--company-ring); }
+  .presentation-company { display: grid; place-items: center; position: absolute; width: 100px; height: 100px; border-radius: 50%; border: 1px solid #ffffff; background: #fffcf7; box-shadow: 0 10px 30px #303a501a; cursor: pointer; }
   .presentation-company:hover { background: #fff; box-shadow: 0 10px 35px #303a5033; }
+  .company-logo-lockup { display: grid; place-items: center; gap: 4px; transform-origin: center; }
+  .company-logo { display: block; max-width: 66px; max-height: 54px; width: auto; height: auto; }
+  .company-logo--bmo,
+  .company-logo--cibc { width: 46px; height: 46px; }
+  .company-logo--rbc { max-height: 58px; }
+  .company-logo-name { color: var(--company-colour); font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0; line-height: 1; }
   .journey-overview { position: relative; min-height: 530px; padding: 0 24px 24px; box-sizing: border-box; pointer-events: none; }
   .journey-overview button { pointer-events: auto; }
   .journey-overview[inert] { position: absolute; inset: 0; }
-  .journey-instruction { padding-top: 28px; font-size: 14px; color: #565569; }
-  .journey-companies { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; padding-top: 210px; }
+  .journey-companies { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; padding: 238px 24px 0; }
   .chapter-number { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; color: #656074; }
   .journey-role { display: block; width: 100%; padding: 12px 10px; margin: 0 0 8px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #272c43; font: inherit; font-size: 15px; line-height: 1.35; text-align: left; cursor: pointer; transition: background-color 300ms ease; }
   .journey-role:hover { background: #fff9; border-color: #d7d6d5; }
@@ -74,7 +112,22 @@
   .role-screen button, .role-screen-content { pointer-events: auto; }
   .journey-back { border: 1px solid #d0cbc5; border-radius: 999px; background: #fffcf7; padding: 10px 16px; font: inherit; font-size: 14px; color: #272c43; cursor: pointer; transition: background-color 300ms ease; }
   .journey-back:hover { background: #e9e4dd; }
-  .role-screen-content { position: relative; margin: 48px 0 0 25%; }
+  .company-navigation { position: absolute; top: 28px; right: 36px; display: flex; align-items: center; gap: 10px; height: 56px; pointer-events: auto; }
+  .company-navigation::before { position: absolute; right: 24px; left: 24px; top: 50%; height: 1px; background: #d0cbc5; content: ''; }
+  .company-navigation-button { position: relative; z-index: 1; display: grid; width: 48px; height: 48px; place-items: center; overflow: hidden; border: 0; border-radius: 50%; background: transparent; box-shadow: none; cursor: pointer; transition: width 300ms ease, height 300ms ease, background-color 300ms ease, box-shadow 300ms ease; }
+  .company-navigation-button:not(.company-navigation-button--active):hover { background: #ffffff80; box-shadow: 0 2px 8px #303a5012; }
+  .company-navigation-button:not(.company-navigation-button--active):focus-visible { outline: 2px solid #625c70; outline-offset: 2px; background: #ffffff80; box-shadow: 0 2px 8px #303a5012; }
+  .company-navigation-button--active { width: 56px; height: 56px; border: 2px solid #625c70; background: #fffcf7; box-shadow: 0 5px 16px #303a5024; }
+  .company-navigation-button img { display: block; width: 76%; height: 76%; object-fit: contain; transition: opacity 300ms ease; }
+  .company-navigation-button:not(.company-navigation-button--active) img { opacity: 0.66; }
+  .role-screen-content-group { position: relative; }
+  .role-screen-content {
+    position: relative;
+    width: 75%;
+    max-width: 1120px;
+    margin: 48px 0 0 25%;
+    scroll-margin-top: 24px;
+  }
   .role-screen-content + .role-screen-content {
     border-top: 1px solid #d0cbc5;
     padding-top: 40px;
@@ -95,4 +148,3 @@
 @media (prefers-reduced-motion: reduce) {
   .career-presentation button { transition: none; }
 }
-

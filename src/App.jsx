@@ -5,30 +5,53 @@ import ProjectGallery from './components/ProjectGallery'
 import SiteNav from './components/SiteNav'
 import {careerRoles} from './data/career'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { scrollWindowTo } from './utils/scrollWindowTo'
 import { siteRoutes } from './siteRoutes'
 
 const routeTargets = Object.fromEntries(siteRoutes.map(({ path, targetId }) => [path, targetId]))
 
+function visibleSectionPath() {
+  const threshold = window.scrollY + window.innerHeight * 0.35
+  let currentPath = siteRoutes[0].path
+  for (const { path, targetId } of siteRoutes) {
+    const section = document.getElementById(targetId)
+    if (section && section.getBoundingClientRect().top + window.scrollY <= threshold) currentPath = path
+  }
+  return currentPath
+}
+
 function App() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [expandedRoleId, setExpandedRoleId] = useState(null)
   const [expandedProjectId, setExpandedProjectId] = useState(null)
   const [isPresentationDetail, setIsPresentationDetail] = useState(false)
   const stopSectionScroll = useRef(null)
   const isInitialRoute = useRef(true)
+  const currentPath = useRef(location.pathname)
+  const pendingScrollRoute = useRef(null)
+  const resetProjectsOnRouteChange = useRef(false)
+  const programmaticScroll = useRef(false)
+  const sectionScrollId = useRef(0)
 
   const enterSection = useCallback((targetId, { instant = false, focus = true } = {}) => {
     const target = document.getElementById(targetId)
     if (!target) return
 
     const targetTop = target.getBoundingClientRect().top + window.scrollY
+    const scrollId = ++sectionScrollId.current
     stopSectionScroll.current?.()
+    programmaticScroll.current = true
     stopSectionScroll.current = scrollWindowTo(targetTop, {
       instant,
       onComplete: () => {
+        if (scrollId !== sectionScrollId.current) return
+        programmaticScroll.current = false
         if (focus) target.focus({ preventScroll: true })
+      },
+      onStop: () => {
+        if (scrollId === sectionScrollId.current) programmaticScroll.current = false
       },
     })
   }, [])
@@ -43,15 +66,43 @@ function App() {
   }, [])
 
   useLayoutEffect(() => {
-    enterSection(routeTargets[location.pathname], { instant: isInitialRoute.current, focus: !isInitialRoute.current })
+    const fromScroll = pendingScrollRoute.current === location.pathname
+    pendingScrollRoute.current = null
+    currentPath.current = location.pathname
+    resetProjectsOnRouteChange.current = !fromScroll && location.pathname !== '/projects'
+    if (!fromScroll) {
+      enterSection(routeTargets[location.pathname], { instant: isInitialRoute.current, focus: !isInitialRoute.current })
+    }
     isInitialRoute.current = false
   }, [location.pathname, location.key, enterSection])
 
   useEffect(() => {
-    if (location.pathname === '/projects') return undefined
+    if (!resetProjectsOnRouteChange.current) return undefined
+    resetProjectsOnRouteChange.current = false
     const frame = window.requestAnimationFrame(() => setExpandedProjectId(null))
     return () => window.cancelAnimationFrame(frame)
-  }, [location.pathname])
+  }, [location.pathname, location.key])
+
+  useEffect(() => {
+    let frame = null
+    function handleScroll() {
+      if (frame !== null) return
+      frame = window.requestAnimationFrame(() => {
+        frame = null
+        if (programmaticScroll.current || isPresentationDetail) return
+        const path = visibleSectionPath()
+        if (path === currentPath.current) return
+        currentPath.current = path
+        pendingScrollRoute.current = path
+        navigate(path, { replace: true })
+      })
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      if (frame !== null) window.cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [navigate, isPresentationDetail])
 
   function handleCurrentRouteNavigation(event, path) {
     if (path !== location.pathname || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
@@ -66,7 +117,7 @@ function App() {
   return (
     <div className="site-shell site-shell--career-presentation">
       <section id="center" tabIndex={-1}>
-        <SiteNav active="/" onNavigateCurrent={handleCurrentRouteNavigation} />
+        <SiteNav sectionPath="/" onNavigateCurrent={handleCurrentRouteNavigation} />
 
         <div className="home-art" aria-hidden="true">
           <span className="home-orbit home-orbit--blue"><span /><span /></span>
@@ -106,7 +157,7 @@ function App() {
         tabIndex={-1}
         aria-label="Career"
       >
-        <SiteNav active="/career" onNavigateCurrent={handleCurrentRouteNavigation} />
+        <SiteNav sectionPath="/career" onNavigateCurrent={handleCurrentRouteNavigation} />
         <CareerPresentation
           roles={careerRoles}
           routeActive={location.pathname === '/career'}
@@ -133,8 +184,19 @@ function App() {
       </section>
 
       <section id="projects" className="projects-page" tabIndex={-1} aria-labelledby="projects-title">
-        <SiteNav active="/projects" onNavigateCurrent={handleCurrentRouteNavigation} />
+        <SiteNav sectionPath="/projects" onNavigateCurrent={handleCurrentRouteNavigation} />
         <ProjectGallery expandedProjectId={expandedProjectId} onToggleProject={handleProjectToggle} />
+      </section>
+
+      <section id="about" className="about-page" tabIndex={-1} aria-labelledby="about-title">
+        <SiteNav sectionPath="/about" onNavigateCurrent={handleCurrentRouteNavigation} />
+        <div className="projects-content">
+          <div className="projects-intro-inner projects-intro">
+            <p className="projects-eyebrow">About me</p>
+            <h2 id="about-title">About</h2>
+            <p>More about my background and interests will appear here.</p>
+          </div>
+        </div>
       </section>
 
       

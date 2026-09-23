@@ -1,6 +1,6 @@
 import { animate } from 'motion'
 
-export function scrollWindowTo(top, { duration = 0.9, instant = false, onComplete } = {}) {
+export function scrollWindowTo(top, { duration = 0.9, instant = false, onComplete, onStop } = {}) {
   const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
   const destination = Math.max(0, Math.min(top, maxScroll))
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -25,6 +25,7 @@ export function scrollWindowTo(top, { duration = 0.9, instant = false, onComplet
   function stop() {
     animation.stop()
     listeners.abort()
+    onStop?.()
   }
 
   for (const eventName of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {

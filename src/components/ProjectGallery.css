@@ -1,4 +1,5 @@
-.projects-page {
+.projects-page,
+.about-page {
   position: relative;
   min-height: 100svh;
   box-sizing: border-box;
@@ -10,7 +11,8 @@
   isolation: isolate;
 }
 
-.projects-page::before {
+.projects-page::before,
+.about-page::before {
   position: absolute;
   inset: 0;
   z-index: -1;

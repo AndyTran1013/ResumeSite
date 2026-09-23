@@ -21,12 +21,12 @@ at build time. No repository name needs to be hardcoded, and local `npm run dev`
 continues to work as before. Root-level Pages sites and configured custom domains
 also use the correct base path.
 
-The build's `postbuild` step copies the generated app entry point into `career/`
-and `projects/`, using the same route list as the navigation. GitHub Pages can
+The build's `postbuild` step copies the generated app entry point into `career/`,
+`projects/`, and `about/`, using the same route list as the navigation. GitHub Pages can
 therefore serve direct requests for those routes from actual files instead of
 showing its 404 page. A direct request without a trailing slash may redirect to
-the route directory; the app then restores the clean `/career` or `/projects`
-URL. Add future top-level routes, including About, to `src/siteRoutes.js` so
+the route directory; the app then restores the clean route URL. Add future
+top-level routes to `src/siteRoutes.js` so
 navigation and deployment entry points stay in sync.
 
 ## Updates and local previews

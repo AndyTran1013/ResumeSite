@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <defs>
+    <clipPath id="string-bed">
+      <ellipse cx="402" cy="209" rx="72" ry="105" />
+    </clipPath>
+  </defs>
+
+  <rect width="800" height="500" fill="#dcebf3" />
+  <circle cx="392" cy="243" r="205" fill="#c8e1ef" opacity=".58" />
+  <circle cx="748" cy="55" r="82" fill="#f6e6b6" opacity=".72" />
+  <circle cx="54" cy="443" r="95" fill="#f3dce5" opacity=".7" />
+
+  <path d="M242 253 C278 253 286 240 314 239" fill="none" stroke="#8198a9" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 9" />
+  <path d="m304 231 12 8-12 8" fill="none" stroke="#8198a9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M499 239 C532 238 546 253 570 253" fill="none" stroke="#8198a9" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 9" />
+  <path d="m559 245 12 8-12 8" fill="none" stroke="#8198a9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+  <rect x="66" y="129" width="176" height="231" rx="22" fill="#8298a6" opacity=".14" />
+  <rect x="60" y="121" width="176" height="231" rx="22" fill="#fffcf7" stroke="#8ba6b3" stroke-width="2" />
+  <text x="82" y="159" fill="#456477" font-family="system-ui, sans-serif" font-size="17" font-weight="700" letter-spacing="2">REQUEST</text>
+  <rect x="82" y="180" width="132" height="132" rx="12" fill="#e7f1f5" />
+  <g fill="#466b7d">
+    <path d="M98 196h32v32H98z M104 202v20h20v-20z M166 196h32v32h-32z M172 202v20h20v-20z M98 264h32v32H98z M104 270v20h20v-20z" fill-rule="evenodd" />
+    <rect x="144" y="199" width="8" height="8" rx="1" />
+    <rect x="144" y="218" width="8" height="8" rx="1" />
+    <rect x="143" y="240" width="9" height="9" rx="1" />
+    <rect x="162" y="242" width="8" height="8" rx="1" />
+    <rect x="181" y="242" width="9" height="9" rx="1" />
+    <rect x="143" y="263" width="8" height="8" rx="1" />
+    <rect x="163" y="264" width="27" height="8" rx="1" />
+    <rect x="143" y="283" width="27" height="8" rx="1" />
+    <rect x="181" y="281" width="9" height="10" rx="1" />
+  </g>
+  <circle cx="90" cy="331" r="4" fill="#a8bfca" />
+  <path d="M103 331h68" stroke="#a8bfca" stroke-width="5" stroke-linecap="round" />
+
+  <g transform="rotate(-23 402 209)">
+    <path d="M402 306v124" stroke="#456477" stroke-width="17" stroke-linecap="round" />
+    <path d="M402 391v48" stroke="#d58c9e" stroke-width="19" stroke-linecap="round" />
+    <path d="M392 409h20m-20 12h20" stroke="#f8edf0" stroke-width="3" stroke-linecap="round" />
+    <ellipse cx="402" cy="209" rx="81" ry="114" fill="#fffcf7" stroke="#456477" stroke-width="12" />
+    <g clip-path="url(#string-bed)" stroke="#8fb2c5" stroke-width="2.5" opacity=".85">
+      <path d="M350 95v230m17-230v230m17-230v230m18-230v230m18-230v230m17-230v230m17-230v230" />
+      <path d="M310 135h185m-185 19h185m-185 19h185m-185 19h185m-185 19h185m-185 19h185m-185 19h185m-185 19h185m-185 19h185" />
+    </g>
+  </g>
+
+  <rect x="577" y="137" width="163" height="206" rx="22" fill="#8298a6" opacity=".14" />
+  <rect x="571" y="129" width="163" height="206" rx="22" fill="#fffcf7" stroke="#8ba6b3" stroke-width="2" />
+  <text x="592" y="166" fill="#456477" font-family="system-ui, sans-serif" font-size="17" font-weight="700" letter-spacing="2">READY</text>
+  <circle cx="652" cy="227" r="42" fill="#f5e7b8" />
+  <path d="m631 227 14 14 28-31" fill="none" stroke="#687b6d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M594 292h116" stroke="#bfd0d4" stroke-width="6" stroke-linecap="round" />
+  <path d="M594 310h75" stroke="#bfd0d4" stroke-width="6" stroke-linecap="round" />
+</svg>

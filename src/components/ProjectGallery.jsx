@@ -179,7 +179,7 @@ export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
                       <h3>{project.title}</h3>
                       <dl>
                         <div><dt>{project.placeholder ? 'Possible problem' : 'The problem'}</dt><dd>{project.problem}</dd></div>
-                        <div><dt>{project.placeholder ? 'Possible approach' : 'What I built'}</dt><dd>{project.approach}</dd></div>
+                        <div><dt>{project.approachLabel ?? (project.placeholder ? 'Possible approach' : 'What I built')}</dt><dd>{project.approach}</dd></div>
                         <div><dt>{project.placeholder ? 'Next step' : 'The result'}</dt><dd>{project.result}</dd></div>
                       </dl>
                       {project.process && <p className="project-process">{project.process}</p>}

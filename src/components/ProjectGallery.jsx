@@ -1,15 +1,18 @@
-import { useEffect, useRef } from 'react'
-import { LayoutGroup, motion, useReducedMotion } from 'motion/react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
+import { animate, LayoutGroup, motion, useReducedMotion } from 'motion/react'
 import { projects } from '../data/projects'
 import { scrollWindowTo } from '../utils/scrollWindowTo'
 import './ProjectGallery.css'
 
-const projectTransitionMs = 600
-const detailRevealDelay = projectTransitionMs / 1000
+const projectTransitionMs = 850
+const detailRevealDelay = (projectTransitionMs / 1000) * 0.8
 
 export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
   const gallery = useRef(null)
+  const pendingWidths = useRef(null)
+  const widthAnimations = useRef(new Map())
   const reduceMotion = useReducedMotion()
+  const featuredProjectId = projects.find((project) => !project.placeholder)?.id
   const numberedProjects = projects.map((project, index) => ({ project, index }))
   const displayedProjects = expandedProjectId
     ? [
@@ -17,6 +20,53 @@ export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
         ...numberedProjects.filter(({ project }) => project.id !== expandedProjectId),
       ]
     : numberedProjects
+
+  const toggleProject = (projectId) => {
+    pendingWidths.current = new Map(
+      [...gallery.current.querySelectorAll('.project-slot')].map((slot) => [
+        slot.dataset.projectId,
+        {
+          width: slot.querySelector('.project-card').getBoundingClientRect().width,
+          offset: slot.querySelector('.project-card').getBoundingClientRect().left - slot.getBoundingClientRect().left,
+        },
+      ]),
+    )
+    widthAnimations.current.forEach((animation) => animation.stop())
+    widthAnimations.current.clear()
+    onToggleProject(projectId)
+  }
+
+  useLayoutEffect(() => {
+    const widths = pendingWidths.current
+    pendingWidths.current = null
+    if (!widths) return
+
+    gallery.current.querySelectorAll('.project-slot').forEach((slot) => {
+      const card = slot.querySelector('.project-card')
+      const start = widths.get(slot.dataset.projectId)
+      slot.classList.remove('project-slot--resizing')
+      card.style.width = ''
+      card.style.marginLeft = ''
+      const targetWidth = card.getBoundingClientRect().width
+      const targetOffset = card.getBoundingClientRect().left - slot.getBoundingClientRect().left
+      if (reduceMotion || !start || (Math.abs(targetWidth - start.width) < 1 && Math.abs(targetOffset - start.offset) < 1)) return
+
+      slot.classList.add('project-slot--resizing')
+      card.style.width = `${start.width}px`
+      card.style.marginLeft = `${start.offset}px`
+      const animation = animate(card, { width: [start.width, targetWidth], marginLeft: [start.offset, targetOffset] }, {
+        duration: projectTransitionMs / 1000,
+        ease: 'easeInOut',
+        onComplete: () => {
+          card.style.width = ''
+          card.style.marginLeft = ''
+          slot.classList.remove('project-slot--resizing')
+          widthAnimations.current.delete(slot.dataset.projectId)
+        },
+      })
+      widthAnimations.current.set(slot.dataset.projectId, animation)
+    })
+  }, [expandedProjectId, reduceMotion])
 
   useEffect(() => {
     if (!expandedProjectId) return undefined
@@ -26,7 +76,7 @@ export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
       const section = gallery.current?.closest('section')
       if (!section) return
       const sectionTop = section.getBoundingClientRect().top + window.scrollY
-      stopScroll = scrollWindowTo(sectionTop, { duration: 0.75 })
+      stopScroll = scrollWindowTo(sectionTop, { duration: projectTransitionMs / 1000 })
     })
 
     return () => {
@@ -36,7 +86,17 @@ export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
   }, [expandedProjectId])
 
   return (
-    <div className="projects-content">
+    <div className={`projects-content${expandedProjectId ? ' projects-content--expanded' : ''}`}>
+      <div className="projects-art" aria-hidden="true">
+        <div className="projects-art-scene">
+          <svg viewBox="0 0 520 850" preserveAspectRatio="none">
+            <path d="M 40 150 C 340 70 90 430 450 700" />
+          </svg>
+          <span className="home-orbit home-orbit--blue"><span /><span /></span>
+          <span className="home-orbit home-orbit--rose"><span /><span /></span>
+          <span className="home-orbit home-orbit--yellow"><span /><span /></span>
+        </div>
+      </div>
       <motion.header
         className="projects-intro"
         initial={false}
@@ -49,20 +109,21 @@ export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
         <div className="projects-intro-inner">
           <p className="projects-eyebrow">Projects and ideas</p>
           <h2 id="projects-title">Projects, with a purpose.</h2>
-          <p>One live project and three clearly marked concepts to explore how this gallery can grow.</p>
+          <p>Live work and clearly marked ideas. Pick a project to explore.</p>
         </div>
       </motion.header>
 
       <LayoutGroup id="projects-gallery">
-        <div className="project-gallery" ref={gallery} style={{ '--project-expansion-duration': `${reduceMotion ? 0 : projectTransitionMs}ms` }}>
+        <div className={`project-gallery${expandedProjectId ? ' project-gallery--expanded' : ''}`} ref={gallery} style={{ '--project-expansion-duration': `${reduceMotion ? 0 : projectTransitionMs}ms` }}>
           {displayedProjects.map(({ project, index }) => {
             const isExpanded = expandedProjectId === project.id
             const detailId = `${project.id}-details`
 
             return (
               <motion.div
-                className={`project-slot${isExpanded ? ' project-slot--expanded' : ''}`}
+                className={`project-slot${!expandedProjectId && project.id === featuredProjectId ? ' project-slot--featured' : ''}${isExpanded ? ' project-slot--expanded' : ''}`}
                 key={project.id}
+                data-project-id={project.id}
                 layout="position"
                 transition={{ layout: { duration: reduceMotion ? 0 : projectTransitionMs / 1000, ease: 'easeInOut' } }}
               >
@@ -73,7 +134,7 @@ export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
                     aria-expanded={isExpanded}
                     aria-controls={detailId}
                     aria-label={`${isExpanded ? 'Close' : 'Explore'} ${project.title} project details`}
-                    onClick={() => onToggleProject(project.id)}
+                    onClick={() => toggleProject(project.id)}
                   >
                     <span className="project-preview">
                       {project.preview ? (
@@ -87,7 +148,7 @@ export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
                     </span>
                     <span className="project-card-heading">
                       <span className="project-number">{String(index + 1).padStart(2, '0')} / {project.category}</span>
-                      <span className="project-title">{project.title}<span aria-hidden="true"> {isExpanded ? '−' : '↗'}</span></span>
+                      <span className="project-title">{project.title}</span>
                       <span className="project-teaser">{project.teaser}</span>
                     </span>
                     <span className="project-skills" aria-label={project.placeholder ? 'Possible technologies and skills' : 'Technologies and skills'}>

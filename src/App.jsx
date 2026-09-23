@@ -1,88 +1,78 @@
 import './App.css'
 import CareerCard from './components/CareerCard'
 import CareerPresentation from './components/CareerPresentation'
+import ProjectGallery from './components/ProjectGallery'
+import SiteNav from './components/SiteNav'
 import {careerRoles} from './data/career'
-import { useState } from 'react'
-import { animate } from 'motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { scrollWindowTo } from './utils/scrollWindowTo'
+
+const sectionIds = new Set(['center', 'career-heading', 'projects'])
 
 function App() {
   const [expandedRoleId, setExpandedRoleId] = useState(null)
+  const [expandedProjectId, setExpandedProjectId] = useState(null)
   const [isPresentationDetail, setIsPresentationDetail] = useState(false)
+  const stopSectionScroll = useRef(null)
 
-  function handleSectionNavigation(event, targetId) {
-    // Preserve modified clicks, such as Ctrl-click.
-    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
-      return
-    }
-
-    // Keep normal link navigation for reduced-motion users.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return
-    }
-
+  const enterSection = useCallback((targetId, { instant = false, focus = true, updateHistory = true } = {}) => {
     const target = document.getElementById(targetId)
     if (!target) return
 
-    event.preventDefault()
-
     const targetTop = target.getBoundingClientRect().top + window.scrollY
-    const maxScroll = Math.max(
-      0,
-      document.documentElement.scrollHeight - window.innerHeight
-    )
-    const destination = Math.max(0, Math.min(targetTop, maxScroll))
-    const listeners = new AbortController()
-
-    const animation = animate(window.scrollY, destination, {
-      duration: 0.9,
-      ease: 'easeInOut',
-
-      onUpdate: (position) => {
-        window.scrollTo({ top: position, behavior: 'instant' })
-      },
-
+    stopSectionScroll.current?.()
+    stopSectionScroll.current = scrollWindowTo(targetTop, {
+      instant,
       onComplete: () => {
-        listeners.abort()
-        target.focus({ preventScroll: true })
-
-        if (window.location.hash !== `#${targetId}`) {
-          window.history.pushState(
-            window.history.state,
-            '',
-            `#${targetId}`
-          )
+        if (focus) target.focus({ preventScroll: true })
+        if (updateHistory && window.location.hash !== `#${targetId}`) {
+          window.history.pushState(window.history.state, '', `#${targetId}`)
         }
       },
     })
+  }, [])
 
-    function stopScrolling() {
-      animation.stop()
-      listeners.abort()
+  useEffect(() => {
+    const previousRestoration = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+
+    const initialId = window.location.hash.slice(1)
+    const frame = sectionIds.has(initialId)
+      ? window.requestAnimationFrame(() => enterSection(initialId, { instant: true, focus: false, updateHistory: false }))
+      : null
+
+    function handleHistoryNavigation() {
+      const id = window.location.hash.slice(1)
+      const targetId = sectionIds.has(id) ? id : 'center'
+      if (targetId !== 'projects') setExpandedProjectId(null)
+      enterSection(targetId, { updateHistory: false })
     }
 
-    for (const eventName of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {
-      window.addEventListener(eventName, stopScrolling, {
-        passive: true,
-        signal: listeners.signal,
-      })
+    window.addEventListener('popstate', handleHistoryNavigation)
+    return () => {
+      if (frame !== null) window.cancelAnimationFrame(frame)
+      window.removeEventListener('popstate', handleHistoryNavigation)
+      stopSectionScroll.current?.()
+      window.history.scrollRestoration = previousRestoration
     }
+  }, [enterSection])
+
+  function handleSectionNavigation(event, targetId) {
+    // Preserve modified clicks, such as Ctrl-click.
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+    event.preventDefault()
+    if (targetId !== 'projects') setExpandedProjectId(null)
+    enterSection(targetId)
   }
 
-  function handleExploreClick(event) {
-    handleSectionNavigation(event, 'career-heading')
-  }
-
-  function handleHomeClick(event) {
-    handleSectionNavigation(event, 'center')
+  function handleProjectToggle(id) {
+    setExpandedProjectId((currentId) => currentId === id ? null : id)
   }
 
   return (
     <div className="site-shell site-shell--career-presentation">
       <section id="center" tabIndex={-1}>
-        <nav className="site-navigation home-navigation" aria-label="Primary navigation">
-          <a href="#center" aria-current="page">Home</a>
-          <a href="#career-heading" onClick={handleExploreClick}>Career</a>
-        </nav>
+        <SiteNav active="center" onNavigate={handleSectionNavigation} />
 
         <div className="home-art" aria-hidden="true">
           <span className="home-orbit home-orbit--blue"><span /><span /></span>
@@ -109,7 +99,7 @@ function App() {
           <a
             className="explore-link"
             href="#career-heading"
-            onClick={handleExploreClick}
+            onClick={(event) => handleSectionNavigation(event, 'career-heading')}
           >
             Explore my career
           </a>
@@ -123,13 +113,11 @@ function App() {
         tabIndex={-1}
         aria-label="Career"
       >
-        <nav className="site-navigation" aria-label="Primary navigation">
-          <a href="#center" onClick={handleHomeClick}>Home</a>
-          <a href="#career-heading" aria-current="page">Career</a>
-        </nav>
+        <SiteNav active="career-heading" onNavigate={handleSectionNavigation} />
         <CareerPresentation
           roles={careerRoles}
           onDetailChange={setIsPresentationDetail}
+          onReturnToCareer={() => enterSection('career-heading', { instant: true })}
         />
 
       <ol className="career-timeline">
@@ -148,6 +136,11 @@ function App() {
         ))}
       </ol>
 
+      </section>
+
+      <section id="projects" className="projects-page" tabIndex={-1} aria-labelledby="projects-title">
+        <SiteNav active="projects" onNavigate={handleSectionNavigation} />
+        <ProjectGallery expandedProjectId={expandedProjectId} onToggleProject={handleProjectToggle} />
       </section>
 
       

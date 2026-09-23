@@ -8,9 +8,13 @@ const companies = [
   { name: 'RBC', asset: 'rbc.svg', navigationAsset: 'rbc.svg', colour: '#0059b3', tint: '#f8e5a0', ring: '#e9cc6f', caption: 'Analytics & tools', number: '03' },
 ]
 
-export default function CareerPresentation({ roles, onDetailChange }) {
+const circleTransitionDuration = 0.85
+const detailTextDuration = 0.4
+
+export default function CareerPresentation({ roles, onDetailChange, onReturnToCareer }) {
   const [selectedId, setSelectedId] = useState(null)
   const [travelDirection, setTravelDirection] = useState(1)
+  const [openingFromOverview, setOpeningFromOverview] = useState(false)
   // A company selection displays all its roles; a role selection also records where to scroll.
   const selectedRole = roles.find((role) => role.id === selectedId)
   const selectedCompanyName = selectedRole?.company ?? selectedId
@@ -23,11 +27,13 @@ export default function CareerPresentation({ roles, onDetailChange }) {
   const stage = useRef(null)
   const roleSections = useRef({})
   const pendingRoleId = useRef(null)
-  const transition = { duration: reduceMotion ? 0 : 0.85, ease: [0.76, 0, 0.24, 1] }
+  const returningToOverview = useRef(false)
+  const transition = { duration: reduceMotion ? 0 : circleTransitionDuration, ease: [0.76, 0, 0.24, 1] }
   const isDetailOpen = Boolean(selected)
 
   useEffect(() => {
     if (selectedId) heading.current?.focus({ preventScroll: true })
+    else if (returningToOverview.current) returningToOverview.current = false
     else origin.current?.focus({ preventScroll: true })
   }, [selectedId])
 
@@ -56,8 +62,18 @@ export default function CareerPresentation({ roles, onDetailChange }) {
       const detailStage = stage.current
       if (!target || !detailStage) return
 
+      const targetHeading = target.querySelector('h3')
+      const headingBounds = targetHeading?.getBoundingClientRect()
+      const stageBounds = detailStage.getBoundingClientRect()
+      if (headingBounds && headingBounds.top >= stageBounds.top + 24
+        && headingBounds.bottom <= stageBounds.top + detailStage.clientHeight * 0.55) {
+        targetHeading.focus({ preventScroll: true })
+        pendingRoleId.current = null
+        return
+      }
+
       const targetTop = target.getBoundingClientRect().top
-        - detailStage.getBoundingClientRect().top
+        - stageBounds.top
         + detailStage.scrollTop
         - 24
       const destination = Math.max(0, Math.min(targetTop, detailStage.scrollHeight - detailStage.clientHeight))
@@ -91,7 +107,7 @@ export default function CareerPresentation({ roles, onDetailChange }) {
           pendingRoleId.current = null
         },
       })
-    }, reduceMotion ? 0 : 450)
+    }, reduceMotion ? 0 : (circleTransitionDuration + detailTextDuration) * 1000)
 
     return () => {
       window.clearTimeout(delay)
@@ -103,6 +119,7 @@ export default function CareerPresentation({ roles, onDetailChange }) {
   function openRole(role, event) {
     origin.current = event.currentTarget
     pendingRoleId.current = roles.filter((item) => item.company === role.company).length > 1 ? role.id : null
+    setOpeningFromOverview(true)
     setTravelDirection(1)
     setSelectedId(role.id)
     onDetailChange(true)
@@ -111,6 +128,7 @@ export default function CareerPresentation({ roles, onDetailChange }) {
   function openCompany(companyName, event) {
     origin.current = event.currentTarget
     pendingRoleId.current = null
+    setOpeningFromOverview(true)
     setTravelDirection(1)
     setSelectedId(companyName)
     onDetailChange(true)
@@ -120,6 +138,7 @@ export default function CareerPresentation({ roles, onDetailChange }) {
     if (nextIndex === selectedCompanyIndex) return
 
     pendingRoleId.current = null
+    setOpeningFromOverview(false)
     setTravelDirection(nextIndex > selectedCompanyIndex ? 1 : -1)
     setSelectedId(companies[nextIndex].name)
     stage.current?.scrollTo({ top: 0, behavior: 'auto' })
@@ -127,6 +146,9 @@ export default function CareerPresentation({ roles, onDetailChange }) {
 
   function closeDetail() {
     pendingRoleId.current = null
+    setOpeningFromOverview(false)
+    returningToOverview.current = true
+    onReturnToCareer()
     setSelectedId(null)
     onDetailChange(false)
   }
@@ -273,8 +295,16 @@ export default function CareerPresentation({ roles, onDetailChange }) {
                 custom={travelDirection}
                 initial={(direction) => ({ opacity: reduceMotion ? 1 : 0, x: reduceMotion ? 0 : direction * 36 })}
                 animate={{ opacity: 1, x: 0 }}
-                exit={(direction) => ({ opacity: reduceMotion ? 1 : 0, x: reduceMotion ? 0 : direction * -36 })}
-                transition={{ duration: reduceMotion ? 0 : 0.4, ease: 'easeInOut' }}
+                exit={(direction) => ({
+                  opacity: reduceMotion ? 1 : 0,
+                  x: reduceMotion ? 0 : direction * -36,
+                  transition: { duration: reduceMotion ? 0 : detailTextDuration, ease: 'easeInOut' },
+                })}
+                transition={{
+                  duration: reduceMotion ? 0 : detailTextDuration,
+                  delay: openingFromOverview && !reduceMotion ? circleTransitionDuration : 0,
+                  ease: 'easeInOut',
+                }}
               >
                 {visibleRoles.map((role, index) => (
                   <article

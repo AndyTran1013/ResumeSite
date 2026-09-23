@@ -199,11 +199,13 @@ Attendance: 2011 - 2015
 Interests: Badminton, climbing, skiing, riding motorcycles.
 Languages: Conversational Cantonese.
 
-## Future Portfolio Project
+## Portfolio Project
 
-Personal resume website:
-Currently being planned. Add the completed features, technologies,
-and deployment details as they are built.
+Career portfolio website: React, Vite, JavaScript, CSS, Motion, and GitHub Pages.
+The Projects page presents the problem, implementation, result, and an honest
+description of the AI-assisted review and testing process. Future analytics,
+Python, SQL, or automation entries should be added when there is a real result
+to inspect.
 
 ## Project Progress
 
@@ -239,18 +241,28 @@ and deployment details as they are built.
 - Current refinement: The visible career heading is replaced with a temporary Home/Career navigation bar, creating a foundation for future top-level pages.
 - Current refinement: Home and Career navigation share one custom 0.9-second ease-in-out scroll helper, providing a reusable pattern for future top-level page links.
 - Current refinement: Roadmap step 3 is underway: the splash now shares the career presentation's warm background, dotted texture, tonal circles, playful path details, typography, rounded controls, and Home/Career navigation language.
+- Current refinement: The public résumé download and PDF have been removed from the site; the private source PDF remains ignored.
+- Current refinement: Projects now has a reusable gallery card that expands a real portfolio preview and places the problem, approach, result, process, and links beside it. The shared navigation includes Projects and remains ready for a later About Me section.
+- Current refinement: Home, Career overview, Projects, and their navigation share one responsive page gutter. Three clearly marked, unbuilt project concepts fill out the gallery for layout review; replace them with real projects and evidence before presenting them as completed work.
+- Current refinement: Navigation labels now share the eyebrow text boundary. Major-section links and Career's Back control enter sections at defined top positions, including browser history navigation. Projects move the selected card to the first gallery row with position-only card motion and an eased viewport follow. Collapsed cards share a responsive base height; switching directly between active project IDs lets the old and new cards move together.
+- Current refinement: Expanded project details begin a slower fade after the card's opening movement and fade out promptly on collapse. Site navigation away from Projects clears the selected project, while ordinary scrolling preserves it. Career and Projects share the same navigation-to-eyebrow spacing token.
+- Current refinement: Opening Career details from the overview now lets the circles finish their 0.85-second morph before the existing text slide/fade begins. Multi-role selection scrolls only when the selected heading needs repositioning; company icon-rail navigation keeps its original timing.
+- Current refinement: Shared section navigation stays visible while scrolling through expanded Projects. Project selection enters at the Projects section boundary; balanced wrapping prevents an orphaned final word when the intro is visible. The delayed 0.8-second detail fade now slides subtly in from the right and reverses on collapse.
+- Current refinement: Opening a project smoothly collapses the Projects intro so the selected card sits directly beneath the persistent navigation; closing restores the intro and normal gallery position. Switching between open projects keeps the intro collapsed.
+- Current refinement: The shared section-intro spacing now belongs to the Projects content container, so the expanded card begins at the same distance below navigation as the normal Projects eyebrow.
+- Current refinement: The Projects intro heading, eyebrow, and supporting sentence now use the Career intro's typography and spacing. Removing the Projects-only copy width cap keeps its sentence on one line at desktop widths while allowing natural wrapping on smaller screens.
 - Later: Add earlier RBC roles, refine achievements, and choose public assets.
 
 ## Next-Step Roadmap
 
 1. Complete for now — Polish the career overview: refine heading placement, spacing, company marks, and decorative elements; hide overview headings when a role screen opens.
 2. Complete for now — Refine role screens: improve content hierarchy, keep the return control easy to reach, and decide whether company screens with multiple roles should stack roles or use a selector.
-3. In progress — Bring the home screen into the same theme: apply the career section's colour, circle, typography, and playful visual language around the introduction and career transition.
-4. Add navigation and a downloadable PDF resume: begin with Home, Career, and Download resume; use an approved public PDF while keeping the private source PDF ignored.
-5. Complete responsive and accessibility testing: bring the visual theme to mobile without sacrificing readable scrolling; test Firefox, keyboard navigation, reduced motion, zoom, and shorter laptop screens.
-6. Promote the prototype to the main design: remove the preview switch after approval, consolidate shared styling and detail rendering, then make a local Git checkpoint. Push only when Andy asks.
-7. Add Projects: begin with this portfolio, then add suitable Python, analytics, or automation projects that explain the problem, approach, and an inspectable result.
-8. Add Interests and remaining career content: use interests to show personality; add earlier RBC roles, education, and suitable contact links as their details are ready.
+3. Complete for now — Bring the home screen into the same theme: apply the career section's colour, circle, typography, and playful visual language around the introduction and career transition.
+4. Complete for now — Add shared section navigation. Keep the private résumé source ignored; do not publish a PDF download.
+5. Last — Complete responsive and accessibility testing: bring the visual theme to mobile without sacrificing readable scrolling; test Firefox, keyboard navigation, reduced motion, zoom, and shorter laptop screens.
+6. Complete for now — Promote the prototype to the main design: remove the preview switch after approval, consolidate shared styling and detail rendering, then make a local Git checkpoint. Push only when Andy asks.
+7. In progress — Add Projects: begin with this portfolio, then add suitable Python, analytics, or automation projects that explain the problem, approach, and an inspectable result.
+8. Add About Me and remaining career content: keep Education and Interests as separate sections; add earlier RBC roles and suitable contact links as their details are ready.
 
 Learning approach: Batch familiar data, JSX, and CSS changes. Pause and explain
 new concepts before introducing them. Only push when Andy explicitly asks.

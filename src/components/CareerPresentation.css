@@ -1,7 +1,7 @@
 .career-presentation { display: none; }
 
-.site-navigation { display: flex; justify-content: center; gap: 8px; padding: 18px 24px 0; }
-.site-navigation a { border: 1px solid transparent; border-radius: 999px; color: #625c70; font-size: 14px; font-weight: 650; padding: 8px 14px; text-decoration: none; transition: background-color 300ms ease, color 300ms ease; }
+.site-navigation { --nav-link-padding: 14px; --nav-link-border: 1px; --nav-edge: calc(var(--page-gutter) - var(--nav-link-padding) - var(--nav-link-border)); position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; padding: 18px var(--nav-edge) 0; background: #f9f6f0; }
+.site-navigation a { border: var(--nav-link-border) solid transparent; border-radius: 999px; color: #625c70; font-size: 14px; font-weight: 650; padding: 8px var(--nav-link-padding); text-decoration: none; transition: background-color 300ms ease, color 300ms ease; }
 .site-navigation a:hover { background: #ffffff80; color: #272c43; }
 .site-navigation a:focus-visible { outline: 3px solid #6246a6; outline-offset: 3px; }
 .site-navigation a[aria-current='page'] { background: #fffcf7; border-color: #d0cbc5; color: #272c43; }
@@ -26,7 +26,6 @@
     color: #272c43;
   }
   .career--career-presentation > .career-timeline { display: none; }
-  .career--career-presentation > .site-navigation { justify-content: flex-start; padding: 18px 5% 0; }
   .career--career-presentation.career--detail > .site-navigation { display: none; }
   .career-presentation {
     display: flex;
@@ -35,7 +34,7 @@
     text-align: left;
     color: #272c43;
   }
-  .presentation-intro { padding: 16px 5% 18px; box-sizing: border-box; }
+  .presentation-intro { padding: var(--section-intro-top) var(--page-gutter) 18px; box-sizing: border-box; }
   .presentation-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
   .presentation-intro .presentation-eyebrow { color: #625c70; }
   .presentation-intro h3 { font-size: clamp(32px, 4vw, 42px); line-height: 1.1; margin: 10px 0 12px; color: #272c43; letter-spacing: -1.5px; }
@@ -90,13 +89,13 @@
   .company-logo--cibc { width: 46px; height: 46px; }
   .company-logo--rbc { max-height: 58px; }
   .company-logo-name { color: var(--company-colour); font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 0; line-height: 1; }
-  .journey-overview { position: relative; min-height: 530px; padding: 0 24px 24px; box-sizing: border-box; pointer-events: none; }
+  .journey-overview { position: relative; min-height: 530px; padding: 0 var(--page-gutter) 24px; box-sizing: border-box; pointer-events: none; }
   .journey-overview button { pointer-events: auto; }
   .journey-overview[inert] { position: absolute; inset: 0; }
-  .journey-companies { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; padding: 238px 24px 0; }
+  .journey-companies { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; padding: 238px 0 0; }
   .chapter-number { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; color: #656074; }
-  .journey-role { display: block; width: 100%; padding: 12px 10px; margin: 0 0 8px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #272c43; font: inherit; font-size: 15px; line-height: 1.35; text-align: left; cursor: pointer; transition: background-color 300ms ease; }
-  .journey-role:hover { background: #fff9; border-color: #d7d6d5; }
+  .journey-role { display: block; width: 100%; padding: 12px 0; margin: 0 0 8px; border: 0; border-radius: 10px; background: transparent; color: #272c43; font: inherit; font-size: 15px; line-height: 1.35; text-align: left; cursor: pointer; transition: background-color 300ms ease; }
+  .journey-role:hover { background: #fff9; }
   .journey-role > span:first-child { font-weight: 650; }
   .journey-dates { display: block; font-size: 12px; color: #635e6a; margin-top: 8px; }
   .journey-dates > span { float: right; font-size: 18px; }

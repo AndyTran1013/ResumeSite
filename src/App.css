@@ -5,7 +5,7 @@
   overflow: hidden;
   min-height: 100svh;
   box-sizing: border-box;
-  padding: 96px 8% 64px;
+  padding: 96px var(--page-gutter) 64px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -23,12 +23,13 @@
   content: '';
 }
 
-.home-navigation {
+.site-navigation.home-navigation {
   position: absolute;
   top: 18px;
-  left: 5%;
+  left: var(--nav-edge);
   z-index: 3;
   padding: 0;
+  background: transparent;
 }
 
 .home-art {
@@ -154,9 +155,7 @@
 .intro {
   position: relative;
   z-index: 1;
-  width: min(720px, 72vw);
-  max-width: 720px;
-  margin-left: clamp(0px, 6vw, 110px);
+  width: min(720px, 100%);
   padding: 0;
   text-align: left;
 }
@@ -388,16 +387,11 @@
 /* Give the text more room on small screens. */
 @media (max-width: 600px) {
   #center {
-    padding: 92px 24px 54px;
-  }
-
-  .home-navigation {
-    left: 24px;
+    padding: 92px var(--page-gutter) 54px;
   }
 
   .intro {
     width: 100%;
-    margin-left: 0;
   }
 
   .intro h1 {

@@ -1,21 +1,18 @@
-const sections = [
-  { id: 'center', label: 'Home' },
-  { id: 'career-heading', label: 'Career' },
-  { id: 'projects', label: 'Projects' },
-]
+import { Link } from 'react-router'
+import { siteRoutes } from '../siteRoutes'
 
-export default function SiteNav({ active, onNavigate }) {
+export default function SiteNav({ active, onNavigateCurrent }) {
   return (
-    <nav className={`site-navigation${active === 'center' ? ' home-navigation' : ''}`} aria-label="Primary navigation">
-      {sections.map(({ id, label }) => (
-        <a
-          href={`#${id}`}
-          key={id}
-          aria-current={active === id ? 'page' : undefined}
-          onClick={(event) => onNavigate(event, id)}
+    <nav className={`site-navigation${active === '/' ? ' home-navigation' : ''}`} aria-label="Primary navigation">
+      {siteRoutes.map(({ path, label }) => (
+        <Link
+          to={path}
+          key={path}
+          aria-current={active === path ? 'page' : undefined}
+          onClick={(event) => onNavigateCurrent(event, path)}
         >
           {label}
-        </a>
+        </Link>
       ))}
     </nav>
   )

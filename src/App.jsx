@@ -4,18 +4,22 @@ import CareerPresentation from './components/CareerPresentation'
 import ProjectGallery from './components/ProjectGallery'
 import SiteNav from './components/SiteNav'
 import {careerRoles} from './data/career'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router'
 import { scrollWindowTo } from './utils/scrollWindowTo'
+import { siteRoutes } from './siteRoutes'
 
-const sectionIds = new Set(['center', 'career-heading', 'projects'])
+const routeTargets = Object.fromEntries(siteRoutes.map(({ path, targetId }) => [path, targetId]))
 
 function App() {
+  const location = useLocation()
   const [expandedRoleId, setExpandedRoleId] = useState(null)
   const [expandedProjectId, setExpandedProjectId] = useState(null)
   const [isPresentationDetail, setIsPresentationDetail] = useState(false)
   const stopSectionScroll = useRef(null)
+  const isInitialRoute = useRef(true)
 
-  const enterSection = useCallback((targetId, { instant = false, focus = true, updateHistory = true } = {}) => {
+  const enterSection = useCallback((targetId, { instant = false, focus = true } = {}) => {
     const target = document.getElementById(targetId)
     if (!target) return
 
@@ -25,9 +29,6 @@ function App() {
       instant,
       onComplete: () => {
         if (focus) target.focus({ preventScroll: true })
-        if (updateHistory && window.location.hash !== `#${targetId}`) {
-          window.history.pushState(window.history.state, '', `#${targetId}`)
-        }
       },
     })
   }, [])
@@ -35,34 +36,27 @@ function App() {
   useEffect(() => {
     const previousRestoration = window.history.scrollRestoration
     window.history.scrollRestoration = 'manual'
-
-    const initialId = window.location.hash.slice(1)
-    const frame = sectionIds.has(initialId)
-      ? window.requestAnimationFrame(() => enterSection(initialId, { instant: true, focus: false, updateHistory: false }))
-      : null
-
-    function handleHistoryNavigation() {
-      const id = window.location.hash.slice(1)
-      const targetId = sectionIds.has(id) ? id : 'center'
-      if (targetId !== 'projects') setExpandedProjectId(null)
-      enterSection(targetId, { updateHistory: false })
-    }
-
-    window.addEventListener('popstate', handleHistoryNavigation)
     return () => {
-      if (frame !== null) window.cancelAnimationFrame(frame)
-      window.removeEventListener('popstate', handleHistoryNavigation)
       stopSectionScroll.current?.()
       window.history.scrollRestoration = previousRestoration
     }
-  }, [enterSection])
+  }, [])
 
-  function handleSectionNavigation(event, targetId) {
-    // Preserve modified clicks, such as Ctrl-click.
-    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+  useLayoutEffect(() => {
+    enterSection(routeTargets[location.pathname], { instant: isInitialRoute.current, focus: !isInitialRoute.current })
+    isInitialRoute.current = false
+  }, [location.pathname, location.key, enterSection])
+
+  useEffect(() => {
+    if (location.pathname === '/projects') return undefined
+    const frame = window.requestAnimationFrame(() => setExpandedProjectId(null))
+    return () => window.cancelAnimationFrame(frame)
+  }, [location.pathname])
+
+  function handleCurrentRouteNavigation(event, path) {
+    if (path !== location.pathname || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
     event.preventDefault()
-    if (targetId !== 'projects') setExpandedProjectId(null)
-    enterSection(targetId)
+    enterSection(routeTargets[path])
   }
 
   function handleProjectToggle(id) {
@@ -72,7 +66,7 @@ function App() {
   return (
     <div className="site-shell site-shell--career-presentation">
       <section id="center" tabIndex={-1}>
-        <SiteNav active="center" onNavigate={handleSectionNavigation} />
+        <SiteNav active="/" onNavigateCurrent={handleCurrentRouteNavigation} />
 
         <div className="home-art" aria-hidden="true">
           <span className="home-orbit home-orbit--blue"><span /><span /></span>
@@ -96,13 +90,12 @@ function App() {
             Exploring opportunities in data analytics and automation.
           </p>
           
-          <a
+          <Link
             className="explore-link"
-            href="#career-heading"
-            onClick={(event) => handleSectionNavigation(event, 'career-heading')}
+            to="/career"
           >
             Explore my career
-          </a>
+          </Link>
 
         </div>
       </section>
@@ -113,9 +106,10 @@ function App() {
         tabIndex={-1}
         aria-label="Career"
       >
-        <SiteNav active="career-heading" onNavigate={handleSectionNavigation} />
+        <SiteNav active="/career" onNavigateCurrent={handleCurrentRouteNavigation} />
         <CareerPresentation
           roles={careerRoles}
+          routeActive={location.pathname === '/career'}
           onDetailChange={setIsPresentationDetail}
           onReturnToCareer={() => enterSection('career-heading', { instant: true })}
         />
@@ -139,7 +133,7 @@ function App() {
       </section>
 
       <section id="projects" className="projects-page" tabIndex={-1} aria-labelledby="projects-title">
-        <SiteNav active="projects" onNavigate={handleSectionNavigation} />
+        <SiteNav active="/projects" onNavigateCurrent={handleCurrentRouteNavigation} />
         <ProjectGallery expandedProjectId={expandedProjectId} onToggleProject={handleProjectToggle} />
       </section>
 

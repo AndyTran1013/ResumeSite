@@ -11,7 +11,7 @@ const companies = [
 const circleTransitionDuration = 0.85
 const detailTextDuration = 0.4
 
-export default function CareerPresentation({ roles, onDetailChange, onReturnToCareer }) {
+export default function CareerPresentation({ roles, routeActive, onDetailChange, onReturnToCareer }) {
   const [selectedId, setSelectedId] = useState(null)
   const [travelDirection, setTravelDirection] = useState(1)
   const [openingFromOverview, setOpeningFromOverview] = useState(false)
@@ -30,6 +30,18 @@ export default function CareerPresentation({ roles, onDetailChange, onReturnToCa
   const returningToOverview = useRef(false)
   const transition = { duration: reduceMotion ? 0 : circleTransitionDuration, ease: [0.76, 0, 0.24, 1] }
   const isDetailOpen = Boolean(selected)
+
+  useEffect(() => {
+    if (routeActive || !selectedId) return undefined
+    const frame = window.requestAnimationFrame(() => {
+      pendingRoleId.current = null
+      returningToOverview.current = true
+      setOpeningFromOverview(false)
+      setSelectedId(null)
+      onDetailChange(false)
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [routeActive, selectedId, onDetailChange])
 
   useEffect(() => {
     if (selectedId) heading.current?.focus({ preventScroll: true })

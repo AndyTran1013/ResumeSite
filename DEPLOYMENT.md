@@ -21,6 +21,14 @@ at build time. No repository name needs to be hardcoded, and local `npm run dev`
 continues to work as before. Root-level Pages sites and configured custom domains
 also use the correct base path.
 
+The build's `postbuild` step copies the generated app entry point into `career/`
+and `projects/`, using the same route list as the navigation. GitHub Pages can
+therefore serve direct requests for those routes from actual files instead of
+showing its 404 page. A direct request without a trailing slash may redirect to
+the route directory; the app then restores the clean `/career` or `/projects`
+URL. Add future top-level routes, including About, to `src/siteRoutes.js` so
+navigation and deployment entry points stay in sync.
+
 ## Updates and local previews
 
 Commit and push changes to the default branch to publish an update. Deployment
@@ -35,6 +43,9 @@ npm run preview -- --base /ResumeSite/
 
 Open `http://localhost:4173/ResumeSite/` (or the port printed by Vite).
 Replace `ResumeSite` with your repository name if different.
+Also check `http://localhost:4173/ResumeSite/projects` and refresh it. The
+production build should contain `dist/projects/index.html` and
+`dist/career/index.html`.
 
 When adding images or downloads in React, import files from `src`, or use
 `import.meta.env.BASE_URL + 'filename.ext'` for files in `public`. This keeps

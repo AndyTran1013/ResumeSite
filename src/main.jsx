@@ -15,7 +15,7 @@ if (siteRoutes.some(({ path }) => path !== '/' && window.location.pathname === `
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter basename={basename}>
+    <BrowserRouter basename={basename} useTransitions={false}>
       <Routes>
         <Route path="/" element={<><App /><Outlet /></>}>
           <Route index element={null} />

@@ -1,6 +1,7 @@
 .career-presentation { display: none; }
 
-.site-navigation { --nav-link-padding: 14px; --nav-link-border: 1px; --nav-edge: calc(var(--page-gutter) - var(--nav-link-padding) - var(--nav-link-border)); position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; padding: 18px var(--nav-edge) 0; background: #f9f6f0; }
+.site-navigation { --nav-link-padding: 14px; --nav-link-border: 1px; --nav-edge: calc(var(--page-gutter) - var(--nav-link-padding) - var(--nav-link-border)); position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; box-sizing: border-box; padding: 18px var(--nav-edge) 0; background: #f9f6f0; }
+.site-navigation[inert] { visibility: hidden; }
 .site-navigation a { border: var(--nav-link-border) solid transparent; border-radius: 999px; color: #625c70; font-size: 14px; font-weight: 650; padding: 8px var(--nav-link-padding); text-decoration: none; transition: background-color 300ms ease, color 300ms ease; }
 .site-navigation a:hover { background: #ffffff80; color: #272c43; }
 .site-navigation a:focus-visible { outline: 3px solid #6246a6; outline-offset: 3px; }
@@ -26,7 +27,6 @@
     color: #272c43;
   }
   .career--career-presentation > .career-timeline { display: none; }
-  .career--career-presentation.career--detail > .site-navigation { display: none; }
   .career-presentation {
     display: flex;
     flex-direction: column;

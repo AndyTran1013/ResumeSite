@@ -23,14 +23,8 @@
   content: '';
 }
 
-.site-navigation.home-navigation {
-  position: absolute;
-  top: 18px;
-  left: var(--nav-edge);
-  z-index: 3;
-  padding: 0;
-  background: transparent;
-}
+.site-shell { --site-nav-height: 62px; }
+.site-shell > :is(#career-heading, #projects, #about) { padding-top: var(--site-nav-height); }
 
 .home-art {
   position: absolute;

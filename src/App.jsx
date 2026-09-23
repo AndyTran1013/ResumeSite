@@ -6,11 +6,27 @@ import ProjectGallery from './components/ProjectGallery'
 import SiteNav from './components/SiteNav'
 import {careerRoles} from './data/career'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { scrollWindowTo } from './utils/scrollWindowTo'
 import { siteRoutes } from './siteRoutes'
 
 const routeTargets = Object.fromEntries(siteRoutes.map(({ path, targetId }) => [path, targetId]))
+const desktopController = '(min-width: 901px) and (hover: hover) and (pointer: fine)'
+const gestureThreshold = 88
+const gestureGapMs = 220
+const momentumQuietMs = 170
+
+function sectionTop(path) {
+  const section = document.getElementById(routeTargets[path])
+  return section ? section.getBoundingClientRect().top + window.scrollY : window.scrollY
+}
+
+function wheelPixels(event) {
+  if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) return event.deltaY * 16
+  if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) return event.deltaY * window.innerHeight
+  return event.deltaY
+}
 
 function visibleSectionPath() {
   const threshold = window.scrollY + window.innerHeight * 0.35
@@ -28,69 +44,161 @@ function App() {
   const [expandedRoleId, setExpandedRoleId] = useState(null)
   const [expandedProjectId, setExpandedProjectId] = useState(null)
   const [isPresentationDetail, setIsPresentationDetail] = useState(false)
+  const shellRef = useRef(null)
   const stopSectionScroll = useRef(null)
   const isInitialRoute = useRef(true)
   const currentPath = useRef(location.pathname)
   const pendingScrollRoute = useRef(null)
-  const resetProjectsOnRouteChange = useRef(false)
+  const handledRouteKey = useRef(null)
+  const pendingRouteFrame = useRef(null)
   const programmaticScroll = useRef(false)
   const sectionScrollId = useRef(0)
+  const transitionId = useRef(0)
+  const transitioning = useRef(false)
+  const wheelLocked = useRef(false)
+  const lastWheelAt = useRef(-Infinity)
+  const quietTimer = useRef(null)
+  const gesture = useRef({ direction: 0, amount: 0, lastAt: -Infinity })
 
-  const enterSection = useCallback((targetId, { instant = false, focus = true } = {}) => {
+  const enterSection = useCallback((targetId, { instant = false, focus = true, landing = 'start', onComplete, onStop } = {}) => {
     const target = document.getElementById(targetId)
     if (!target) return
 
-    const targetTop = target.getBoundingClientRect().top + window.scrollY
+    const destination = () => target.getBoundingClientRect().top + window.scrollY
+      + (landing === 'end' ? Math.max(0, target.getBoundingClientRect().height - window.innerHeight) : 0)
     const scrollId = ++sectionScrollId.current
     stopSectionScroll.current?.()
     programmaticScroll.current = true
-    stopSectionScroll.current = scrollWindowTo(targetTop, {
+    stopSectionScroll.current = scrollWindowTo(destination, {
       instant,
+      duration: 0.95,
+      ease: 'easeInOut',
+      interruptOnInput: !window.matchMedia(desktopController).matches,
       onComplete: () => {
         if (scrollId !== sectionScrollId.current) return
         programmaticScroll.current = false
         if (focus) target.focus({ preventScroll: true })
+        onComplete?.()
       },
       onStop: () => {
-        if (scrollId === sectionScrollId.current) programmaticScroll.current = false
+        if (scrollId === sectionScrollId.current) {
+          programmaticScroll.current = false
+          onStop?.()
+        }
       },
     })
   }, [])
+
+  const releaseWhenQuiet = useCallback(() => {
+    window.clearTimeout(quietTimer.current)
+    if (transitioning.current) return
+    const remaining = momentumQuietMs - (performance.now() - lastWheelAt.current)
+    if (remaining <= 0) {
+      wheelLocked.current = false
+      return
+    }
+    quietTimer.current = window.setTimeout(() => {
+      if (!transitioning.current && performance.now() - lastWheelAt.current >= momentumQuietMs) {
+        wheelLocked.current = false
+      }
+    }, remaining)
+  }, [])
+
+  const moveToSection = useCallback((path, { commit = false, replace = false, instant = false, focus = true, landing = 'start' } = {}) => {
+    if (!routeTargets[path]) return
+    const id = ++transitionId.current
+    transitioning.current = true
+    wheelLocked.current = true
+    gesture.current = { direction: 0, amount: 0, lastAt: -Infinity }
+    currentPath.current = path
+    enterSection(routeTargets[path], {
+      instant,
+      focus,
+      landing,
+      onComplete: () => {
+        if (id !== transitionId.current) return
+        transitioning.current = false
+        releaseWhenQuiet()
+        if (commit && location.pathname !== path) {
+          pendingScrollRoute.current = path
+          flushSync(() => navigate(path, { replace }))
+        }
+      },
+      onStop: () => {
+        if (id !== transitionId.current) return
+        transitioning.current = false
+        wheelLocked.current = false
+        const visiblePath = visibleSectionPath()
+        currentPath.current = visiblePath
+        if (visiblePath !== location.pathname) {
+          pendingScrollRoute.current = visiblePath
+          navigate(visiblePath, { replace: true })
+        }
+      },
+    })
+  }, [enterSection, location.pathname, navigate, releaseWhenQuiet])
 
   useEffect(() => {
     const previousRestoration = window.history.scrollRestoration
     window.history.scrollRestoration = 'manual'
     return () => {
       stopSectionScroll.current?.()
+      window.cancelAnimationFrame(pendingRouteFrame.current)
+      window.clearTimeout(quietTimer.current)
       window.history.scrollRestoration = previousRestoration
     }
   }, [])
 
   useLayoutEffect(() => {
+    const nav = shellRef.current?.querySelector('.site-navigation')
+    if (!nav) return
+    const updateHeight = () => shellRef.current?.style.setProperty('--site-nav-height', `${nav.getBoundingClientRect().height}px`)
+    const observer = new ResizeObserver(updateHeight)
+    observer.observe(nav)
+    updateHeight()
+    return () => observer.disconnect()
+  }, [])
+
+  useLayoutEffect(() => {
+    const routeKey = `${location.pathname}:${location.key}`
+    if (routeKey === handledRouteKey.current) return
+    handledRouteKey.current = routeKey
+    window.cancelAnimationFrame(pendingRouteFrame.current)
+
     const fromScroll = pendingScrollRoute.current === location.pathname
     pendingScrollRoute.current = null
+    const previousPath = currentPath.current
     currentPath.current = location.pathname
-    resetProjectsOnRouteChange.current = !fromScroll && location.pathname !== '/projects'
+    const resetProjects = !fromScroll && location.pathname !== '/projects' && expandedProjectId !== null
+    if (resetProjects) setExpandedProjectId(null)
     if (!fromScroll) {
-      enterSection(routeTargets[location.pathname], { instant: isInitialRoute.current, focus: !isInitialRoute.current })
+      const previousIndex = siteRoutes.findIndex(({ path }) => path === previousPath)
+      const targetIndex = siteRoutes.findIndex(({ path }) => path === location.pathname)
+      const options = {
+        instant: isInitialRoute.current,
+        focus: !isInitialRoute.current,
+        landing: !isInitialRoute.current && targetIndex < previousIndex ? 'end' : 'start',
+      }
+      if (resetProjects) {
+        pendingRouteFrame.current = window.requestAnimationFrame(() => {
+          pendingRouteFrame.current = null
+          moveToSection(location.pathname, options)
+        })
+      } else {
+        moveToSection(location.pathname, options)
+      }
     }
     isInitialRoute.current = false
-  }, [location.pathname, location.key, enterSection])
-
-  useEffect(() => {
-    if (!resetProjectsOnRouteChange.current) return undefined
-    resetProjectsOnRouteChange.current = false
-    const frame = window.requestAnimationFrame(() => setExpandedProjectId(null))
-    return () => window.cancelAnimationFrame(frame)
-  }, [location.pathname, location.key])
+  }, [location.pathname, location.key, expandedProjectId, moveToSection])
 
   useEffect(() => {
     let frame = null
+
     function handleScroll() {
       if (frame !== null) return
       frame = window.requestAnimationFrame(() => {
         frame = null
-        if (programmaticScroll.current || isPresentationDetail) return
+        if (programmaticScroll.current || transitioning.current || isPresentationDetail) return
         const path = visibleSectionPath()
         if (path === currentPath.current) return
         currentPath.current = path
@@ -105,10 +213,78 @@ function App() {
     }
   }, [navigate, isPresentationDetail])
 
-  function handleCurrentRouteNavigation(event, path) {
-    if (path !== location.pathname || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+  useEffect(() => {
+    const media = window.matchMedia(desktopController)
+
+    function moveWithinSection(delta, keyboard = false) {
+      const path = currentPath.current
+      const section = document.getElementById(routeTargets[path])
+      if (!section) return
+      const top = sectionTop(path)
+      const lastViewTop = Math.max(top, top + section.getBoundingClientRect().height - window.innerHeight)
+      const direction = Math.sign(delta)
+      const current = window.scrollY
+      const edge = direction > 0 ? lastViewTop : top
+
+      if ((direction > 0 && current < edge - 1) || (direction < 0 && current > edge + 1)) {
+        window.scrollTo({ top: Math.max(top, Math.min(lastViewTop, current + delta)), behavior: 'instant' })
+        gesture.current = { direction: 0, amount: 0, lastAt: -Infinity }
+        return
+      }
+
+      const index = siteRoutes.findIndex((route) => route.path === path)
+      const next = siteRoutes[index + direction]
+      if (!next) return
+      if (keyboard) {
+        moveToSection(next.path, { commit: true, landing: direction < 0 ? 'end' : 'start' })
+        return
+      }
+      const now = performance.now()
+      const prior = gesture.current
+      const amount = prior.direction !== direction || now - prior.lastAt > gestureGapMs ? Math.abs(delta) : prior.amount + Math.abs(delta)
+      gesture.current = { direction, amount, lastAt: now }
+      if (amount >= gestureThreshold) moveToSection(next.path, { commit: true, landing: direction < 0 ? 'end' : 'start' })
+    }
+
+    function handleWheel(event) {
+      if (!media.matches || isPresentationDetail || event.ctrlKey) return
+      const delta = wheelPixels(event)
+      if (!delta) return
+      event.preventDefault()
+      lastWheelAt.current = performance.now()
+      if (wheelLocked.current) {
+        if (!transitioning.current) releaseWhenQuiet()
+        return
+      }
+      moveWithinSection(delta)
+    }
+
+    function handleKey(event) {
+      if (!media.matches || isPresentationDetail || event.altKey || event.ctrlKey || event.metaKey) return
+      if (event.target instanceof Element && event.target.closest('input, textarea, select, button, [contenteditable], [role="tab"]')) return
+      const direction = event.key === 'PageDown' || event.key === 'ArrowDown' || event.key === ' ' && !event.shiftKey ? 1
+        : event.key === 'PageUp' || event.key === 'ArrowUp' || event.key === ' ' && event.shiftKey ? -1 : 0
+      if (!direction) return
+      event.preventDefault()
+      if (transitioning.current) return
+      const distance = event.key.startsWith('Arrow') ? 48 : window.innerHeight * 0.8
+      moveWithinSection(direction * distance, true)
+    }
+
+    window.addEventListener('wheel', handleWheel, { passive: false })
+    window.addEventListener('keydown', handleKey)
+    return () => {
+      window.removeEventListener('wheel', handleWheel)
+      window.removeEventListener('keydown', handleKey)
+    }
+  }, [isPresentationDetail, moveToSection, releaseWhenQuiet])
+
+  function handleRouteNavigation(event, path) {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
     event.preventDefault()
-    enterSection(routeTargets[path])
+    window.cancelAnimationFrame(pendingRouteFrame.current)
+    if (path !== '/projects' && expandedProjectId !== null) setExpandedProjectId(null)
+    moveToSection(path, { commit: path !== location.pathname })
   }
 
   function handleProjectToggle(id) {
@@ -116,10 +292,9 @@ function App() {
   }
 
   return (
-    <div className="site-shell site-shell--career-presentation">
+    <div ref={shellRef} className="site-shell site-shell--career-presentation">
+      <SiteNav onNavigate={handleRouteNavigation} hidden={isPresentationDetail} />
       <section id="center" tabIndex={-1}>
-        <SiteNav sectionPath="/" onNavigateCurrent={handleCurrentRouteNavigation} />
-
         <div className="home-art" aria-hidden="true">
           <span className="home-orbit home-orbit--blue"><span /><span /></span>
           <span className="home-orbit home-orbit--rose"><span /><span /></span>
@@ -145,6 +320,7 @@ function App() {
           <Link
             className="explore-link"
             to="/career"
+            onClick={(event) => handleRouteNavigation(event, '/career')}
           >
             Explore my career
           </Link>
@@ -158,7 +334,6 @@ function App() {
         tabIndex={-1}
         aria-label="Career"
       >
-        <SiteNav sectionPath="/career" onNavigateCurrent={handleCurrentRouteNavigation} />
         <CareerPresentation
           roles={careerRoles}
           routeActive={location.pathname === '/career'}
@@ -185,7 +360,6 @@ function App() {
       </section>
 
       <section id="projects" className="projects-page" tabIndex={-1} aria-labelledby="projects-title">
-        <SiteNav sectionPath="/projects" onNavigateCurrent={handleCurrentRouteNavigation} />
         <ProjectGallery expandedProjectId={expandedProjectId} onToggleProject={handleProjectToggle} />
       </section>
 
@@ -194,7 +368,6 @@ function App() {
           <span className="home-orbit home-orbit--blue about-page-orbit about-page-orbit--large"><span /><span /></span>
           <span className="home-orbit home-orbit--rose about-page-orbit about-page-orbit--small"><span /><span /></span>
         </div>
-        <SiteNav sectionPath="/about" onNavigateCurrent={handleCurrentRouteNavigation} />
         <AboutChapters />
       </section>
 

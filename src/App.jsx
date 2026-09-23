@@ -1,6 +1,7 @@
 import './App.css'
 import CareerCard from './components/CareerCard'
 import CareerPresentation from './components/CareerPresentation'
+import AboutChapters from './components/AboutChapters'
 import ProjectGallery from './components/ProjectGallery'
 import SiteNav from './components/SiteNav'
 import {careerRoles} from './data/career'
@@ -188,15 +189,13 @@ function App() {
         <ProjectGallery expandedProjectId={expandedProjectId} onToggleProject={handleProjectToggle} />
       </section>
 
-      <section id="about" className="about-page" tabIndex={-1} aria-labelledby="about-title">
-        <SiteNav sectionPath="/about" onNavigateCurrent={handleCurrentRouteNavigation} />
-        <div className="projects-content">
-          <div className="projects-intro-inner projects-intro">
-            <p className="projects-eyebrow">About me</p>
-            <h2 id="about-title">About</h2>
-            <p>More about my background and interests will appear here.</p>
-          </div>
+      <section id="about" className="about-page" tabIndex={-1} aria-label="About">
+        <div className="about-page-art" aria-hidden="true">
+          <span className="home-orbit home-orbit--blue about-page-orbit about-page-orbit--large"><span /><span /></span>
+          <span className="home-orbit home-orbit--rose about-page-orbit about-page-orbit--small"><span /><span /></span>
         </div>
+        <SiteNav sectionPath="/about" onNavigateCurrent={handleCurrentRouteNavigation} />
+        <AboutChapters />
       </section>
 
       

@@ -108,7 +108,7 @@ export default function ProjectGallery({ expandedProjectId, onToggleProject }) {
       >
         <div className="projects-intro-inner">
           <p className="projects-eyebrow">Projects and ideas</p>
-          <h2 id="projects-title">Projects, with a purpose.</h2>
+          <h2 id="projects-title">Projects, with a purpose</h2>
           <p>Live work and clearly marked ideas. Pick a project to explore.</p>
         </div>
       </motion.header>

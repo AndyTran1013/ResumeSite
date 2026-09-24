@@ -1,14 +1,7 @@
 .career-presentation { display: none; }
 
-.site-navigation { --nav-link-padding: 14px; --nav-link-border: 1px; --nav-edge: calc(var(--page-gutter) - var(--nav-link-padding) - var(--nav-link-border)); position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; box-sizing: border-box; padding: 18px var(--nav-edge) 0; background: #f9f6f0; }
-.site-navigation[inert] { visibility: hidden; }
-.site-navigation a { border: var(--nav-link-border) solid transparent; border-radius: 999px; color: #625c70; font-size: 14px; font-weight: 650; padding: 8px var(--nav-link-padding); text-decoration: none; transition: background-color 300ms ease, color 300ms ease; }
-.site-navigation a:hover { background: #ffffff80; color: #272c43; }
-.site-navigation a:focus-visible { outline: 3px solid #6246a6; outline-offset: 3px; }
-.site-navigation a[aria-current='page'] { background: #fffcf7; border-color: #d0cbc5; color: #272c43; }
-
 /* Desktop career presentation. The existing small-screen timeline stays intact. */
-@media (min-width: 901px) {
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
   .site-shell--career-presentation {
     width: 100%;
     border-inline: 0;
@@ -16,6 +9,12 @@
   .site-shell--career-presentation > .ticks,
   .site-shell--career-presentation > #spacer {
     display: none;
+  }
+  .site-shell--career-detail > :not(#career-heading):not(.site-navigation) {
+    display: none;
+  }
+  .site-shell--career-detail > #career-heading {
+    padding-top: 0;
   }
   .career--career-presentation {
     display: flex;
@@ -35,6 +34,7 @@
     color: #272c43;
   }
   .presentation-intro { padding: var(--section-intro-top) var(--page-gutter) 18px; box-sizing: border-box; }
+  .career--detail .presentation-intro { padding-block: 0; }
   .presentation-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
   .presentation-intro .presentation-eyebrow { color: #625c70; }
   .presentation-intro h3 { font-size: clamp(32px, 4vw, 42px); line-height: 1.1; margin: 10px 0 12px; color: #272c43; letter-spacing: -1.5px; }
@@ -48,27 +48,29 @@
     isolation: isolate;
   }
   .career--detail .career-stage {
-    position: fixed;
-    inset: 0;
+    position: relative;
     z-index: 10;
-    min-height: 0;
-    height: 100svh;
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
+    min-height: 100svh;
+    overflow: visible;
+  }
+  .career--detail .company-geometry {
+    position: fixed;
+    inset: 0 max(0px, calc((100vw - var(--site-shell-max)) / 2));
+    pointer-events: none;
   }
   .career--detail .company-orbit,
   .career--detail .presentation-company {
-    position: fixed;
+    position: absolute;
   }
   .career--detail .journey-back {
     position: fixed;
     top: 28px;
-    left: 36px;
+    left: max(36px, calc((100vw - var(--site-shell-max)) / 2 + 36px));
     z-index: 11;
   }
   .career--detail .company-navigation {
     position: fixed;
+    right: max(36px, calc((100vw - var(--site-shell-max)) / 2 + 36px));
     z-index: 11;
   }
   .stage-grain { position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(#52607020 0.8px, transparent 0.8px); background-size: 12px 12px; pointer-events: none; }

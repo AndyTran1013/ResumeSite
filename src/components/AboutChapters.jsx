@@ -7,9 +7,9 @@ const pathWidth = 520
 const pathHeight = 480
 
 const chapters = [
-  { id: 'education', number: '01', label: 'Education', previewTitle: 'Where it started.', previewSummary: 'University of Toronto · Rotman Commerce', tint: '#c5eaff', ring: '#78bee8' },
-  { id: 'interests', number: '02', label: 'Interests', previewTitle: 'Outside the office.', previewSummary: 'A few things I enjoy away from work.', tint: '#ffd5df', ring: '#ec96a9' },
-  { id: 'working', number: '03', label: 'What I’m Working On', previewTitle: 'Always learning.', previewSummary: 'A few personal experiments and skills in progress.', tint: '#f8e5a0', ring: '#e9cc6f' },
+  { id: 'education', number: '01', label: 'Education', previewTitle: 'Where it started', previewSummary: 'University of Toronto · Rotman Commerce', tint: '#c5eaff', ring: '#78bee8' },
+  { id: 'interests', number: '02', label: 'Interests', previewTitle: 'Outside the office', previewSummary: 'A few things I enjoy away from work.', tint: '#ffd5df', ring: '#ec96a9' },
+  { id: 'working', number: '03', label: 'What I’m Working On', previewTitle: 'Always learning', previewSummary: 'A few personal experiments and skills in progress.', tint: '#f8e5a0', ring: '#e9cc6f' },
 ]
 
 function ChapterDetails({ chapter }) {
@@ -27,7 +27,7 @@ function ChapterDetails({ chapter }) {
 
   if (chapter.id === 'interests') {
     return <>
-      <h3>Outside the office.</h3>
+      <h3>Outside the office</h3>
       <p className="about-chapter-lede">Badminton, climbing, skiing, and riding motorcycles.</p>
       <ul className="about-interest-list" aria-label="Interests">
         {['Badminton', 'Climbing', 'Skiing', 'Motorcycles'].map((interest, index) => (
@@ -38,7 +38,7 @@ function ChapterDetails({ chapter }) {
   }
 
   return <>
-    <h3>What I’m working on.</h3>
+    <h3>What I’m working on</h3>
     <p className="about-chapter-lede">Examples in progress. These are draft notes, not finished projects.</p>
     <ul className="about-working-list" aria-label="Examples in progress">
       <li><h4>TRML &amp; NAS</h4><p>Learning to use TRML and configuring my NAS.</p></li>
@@ -122,7 +122,7 @@ export default function AboutChapters() {
       inert={chapterOpen}
     >
       <p className="about-eyebrow">A little more about me</p>
-      <h2 id="about-title">Beyond the numbers<span aria-hidden="true">.</span></h2>
+      <h2 id="about-title">Beyond the numbers</h2>
       <p>My background and the interests that keep me curious, one chapter at a time.</p>
     </motion.header>
 

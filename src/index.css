@@ -1,17 +1,37 @@
 :root {
+  /* Shared canvas and layout. The shell caps the composition at its 1920px baseline. */
+  --site-shell-max: 1920px;
+  --content-max: 1400px;
+  --reading-max: 720px;
   --page-gutter: clamp(24px, 5vw, 96px);
   --section-intro-top: 16px;
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
+  --canvas: #f9f6f0;
+  --surface: #fffcf7;
+  --ink: #272c43;
+  --muted: #625c70;
+  --line: #d0cbc5;
+  --grid-dot: #52607020;
+  --pastel-blue: #c5eaff;
+  --pastel-rose: #ffd5df;
+  --pastel-yellow: #f8e5a0;
+  --warm-accent: #ca6b39;
+
+  /* Existing components still use these semantic aliases. */
+  --text: var(--muted);
+  --text-h: var(--ink);
+  --bg: var(--surface);
+  --border: var(--line);
   --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --accent: var(--warm-accent);
+  --accent-bg: #f5eee6;
+  --accent-border: #ca6b3980;
+  --social-bg: #f4f3ec80;
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --motion-feedback: 300ms;
+  --motion-section: 950ms;
+  --motion-spatial: 850ms;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -19,50 +39,52 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
-  background: var(--bg);
+  background: var(--canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     font-size: 16px;
   }
 }
 
-@media (prefers-color-scheme: dark) {
+/* Compact layouts keep feedback but shorten large shared transitions. */
+@media (max-width: 1023px), (hover: none), (pointer: coarse) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    --motion-feedback: 200ms;
+    --motion-section: 240ms;
+    --motion-spatial: 350ms;
   }
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-feedback: 0ms;
+    --motion-section: 0ms;
+    --motion-spatial: 0ms;
   }
 }
 
 body {
   margin: 0;
+  overflow-x: clip;
+  background-color: var(--canvas);
+  background-image: radial-gradient(var(--grid-dot) 0.8px, transparent 0.8px);
+  background-size: 12px 12px;
 }
 
 #root {
   min-height: 100svh;
+  overflow-x: clip;
 }
 
 .site-shell {
-  width: 1126px;
-  max-width: 100%;
+  width: 100%;
+  max-width: var(--site-shell-max);
   margin: 0 auto;
   text-align: center;
   border-inline: 1px solid var(--border);
@@ -83,7 +105,7 @@ h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     font-size: 36px;
     margin: 20px 0;
   }
@@ -93,7 +115,7 @@ h2 {
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     font-size: 20px;
   }
 }

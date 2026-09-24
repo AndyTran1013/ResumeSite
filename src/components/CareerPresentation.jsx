@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, animate, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { usePresentationLayout } from '../responsive'
+import { scrollWindowTo } from '../utils/scrollWindowTo'
 import './CareerPresentation.css'
 
 const companies = [
@@ -22,17 +24,16 @@ export default function CareerPresentation({ roles, routeActive, onDetailChange,
   const selected = visibleRoles[0]
   const selectedCompanyIndex = companies.findIndex((company) => company.name === selected?.company)
   const reduceMotion = useReducedMotion()
+  const presentationLayout = usePresentationLayout()
   const heading = useRef(null)
   const origin = useRef(null)
-  const stage = useRef(null)
   const roleSections = useRef({})
   const pendingRoleId = useRef(null)
   const returningToOverview = useRef(false)
   const transition = { duration: reduceMotion ? 0 : circleTransitionDuration, ease: [0.76, 0, 0.24, 1] }
-  const isDetailOpen = Boolean(selected)
 
   useEffect(() => {
-    if (routeActive || !selectedId) return undefined
+    if ((routeActive && presentationLayout) || !selectedId) return undefined
     const frame = window.requestAnimationFrame(() => {
       pendingRoleId.current = null
       returningToOverview.current = true
@@ -41,7 +42,7 @@ export default function CareerPresentation({ roles, routeActive, onDetailChange,
       onDetailChange(false)
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [routeActive, selectedId, onDetailChange])
+  }, [routeActive, presentationLayout, selectedId, onDetailChange])
 
   useEffect(() => {
     if (selectedId) heading.current?.focus({ preventScroll: true })
@@ -50,81 +51,38 @@ export default function CareerPresentation({ roles, routeActive, onDetailChange,
   }, [selectedId])
 
   useEffect(() => {
-    if (!isDetailOpen) return undefined
-
-    const previousBodyOverflow = document.body.style.overflow
-    const previousRootOverflow = document.documentElement.style.overflow
-    document.body.style.overflow = 'hidden'
-    document.documentElement.style.overflow = 'hidden'
-
-    return () => {
-      document.body.style.overflow = previousBodyOverflow
-      document.documentElement.style.overflow = previousRootOverflow
-    }
-  }, [isDetailOpen])
-
-  useEffect(() => {
     const targetId = pendingRoleId.current
     if (!targetId) return undefined
 
-    const listeners = new AbortController()
-    let scrollAnimation
+    let stopScroll
     const delay = window.setTimeout(() => {
       const target = roleSections.current[targetId]
-      const detailStage = stage.current
-      if (!target || !detailStage) return
+      if (!target) return
 
       const targetHeading = target.querySelector('h3')
       const headingBounds = targetHeading?.getBoundingClientRect()
-      const stageBounds = detailStage.getBoundingClientRect()
-      if (headingBounds && headingBounds.top >= stageBounds.top + 24
-        && headingBounds.bottom <= stageBounds.top + detailStage.clientHeight * 0.55) {
+      if (headingBounds && headingBounds.top >= 24
+        && headingBounds.bottom <= window.innerHeight * 0.55) {
         targetHeading.focus({ preventScroll: true })
         pendingRoleId.current = null
         return
       }
 
-      const targetTop = target.getBoundingClientRect().top
-        - stageBounds.top
-        + detailStage.scrollTop
-        - 24
-      const destination = Math.max(0, Math.min(targetTop, detailStage.scrollHeight - detailStage.clientHeight))
-
-      if (reduceMotion) {
-        detailStage.scrollTo({ top: destination, behavior: 'instant' })
-        target.querySelector('h3')?.focus({ preventScroll: true })
-        pendingRoleId.current = null
-        return
-      }
-
-      const stopScroll = () => {
-        scrollAnimation?.stop()
-        pendingRoleId.current = null
-        listeners.abort()
-      }
-
-      for (const eventName of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {
-        detailStage.addEventListener(eventName, stopScroll, { once: true, signal: listeners.signal })
-      }
-
-      scrollAnimation = animate(detailStage.scrollTop, destination, {
+      const destination = target.getBoundingClientRect().top + window.scrollY - 24
+      stopScroll = scrollWindowTo(destination, {
         duration: 0.9,
-        ease: 'easeInOut',
-        onUpdate: (position) => {
-          detailStage.scrollTo({ top: position, behavior: 'instant' })
-        },
+        instant: reduceMotion,
         onComplete: () => {
-          listeners.abort()
-          target.querySelector('h3')?.focus({ preventScroll: true })
+          targetHeading?.focus({ preventScroll: true })
           pendingRoleId.current = null
         },
+        onStop: () => { pendingRoleId.current = null },
       })
     }, reduceMotion ? 0 : (circleTransitionDuration + detailTextDuration) * 1000)
 
     return () => {
       window.clearTimeout(delay)
-      scrollAnimation?.stop()
-      listeners.abort()
+      stopScroll?.()
     }
   }, [selectedId, reduceMotion])
 
@@ -153,16 +111,16 @@ export default function CareerPresentation({ roles, routeActive, onDetailChange,
     setOpeningFromOverview(false)
     setTravelDirection(nextIndex > selectedCompanyIndex ? 1 : -1)
     setSelectedId(companies[nextIndex].name)
-    stage.current?.scrollTo({ top: 0, behavior: 'auto' })
+    window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
   function closeDetail() {
     pendingRoleId.current = null
     setOpeningFromOverview(false)
     returningToOverview.current = true
-    onReturnToCareer()
     setSelectedId(null)
     onDetailChange(false)
+    onReturnToCareer()
   }
 
   return (
@@ -180,12 +138,11 @@ export default function CareerPresentation({ roles, routeActive, onDetailChange,
         inert={Boolean(selected)}
       >
         <p className="presentation-eyebrow">A little curiosity. A lot of data.</p>
-        <h3>Connecting the dots.</h3>
+        <h3>Connecting the dots</h3>
         <p>My career in banking, analytics, and making things work better. Pick a role to explore.</p>
       </motion.div>
 
       <div
-        ref={stage}
         className={`career-stage${selected ? ' career-stage--detail' : ''}`}
         onKeyDown={(event) => {
           if (event.key === 'Escape' && selected) closeDetail()
@@ -204,7 +161,7 @@ export default function CareerPresentation({ roles, routeActive, onDetailChange,
           const active = selected?.company === company.name
           const position = `${(index + 0.5) * 100 / companies.length}%`
           return (
-            <div key={company.name} style={{ '--company-colour': company.colour, '--company-tint': company.tint, '--company-ring': company.ring }}>
+            <div className="company-geometry" key={company.name} style={{ '--company-colour': company.colour, '--company-tint': company.tint, '--company-ring': company.ring }}>
               {/* Only decorative geometry changes size; text is never scaled. */}
               <motion.div
                 className="company-orbit"

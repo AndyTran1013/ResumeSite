@@ -10,9 +10,9 @@ import { flushSync } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { scrollWindowTo } from './utils/scrollWindowTo'
 import { siteRoutes } from './siteRoutes'
+import { presentationMediaQuery, sectionScrollDuration, usesPresentationControls } from './responsive'
 
 const routeTargets = Object.fromEntries(siteRoutes.map(({ path, targetId }) => [path, targetId]))
-const desktopController = '(min-width: 901px) and (hover: hover) and (pointer: fine)'
 const gestureThreshold = 88
 const gestureGapMs = 220
 const momentumQuietMs = 170
@@ -44,10 +44,12 @@ function App() {
   const [expandedRoleId, setExpandedRoleId] = useState(null)
   const [expandedProjectId, setExpandedProjectId] = useState(null)
   const [isPresentationDetail, setIsPresentationDetail] = useState(false)
+  const careerDetailVisible = isPresentationDetail && location.pathname === '/career'
   const shellRef = useRef(null)
   const stopSectionScroll = useRef(null)
   const isInitialRoute = useRef(true)
   const currentPath = useRef(location.pathname)
+  const routePath = useRef(location.pathname)
   const pendingScrollRoute = useRef(null)
   const handledRouteKey = useRef(null)
   const pendingRouteFrame = useRef(null)
@@ -71,9 +73,9 @@ function App() {
     programmaticScroll.current = true
     stopSectionScroll.current = scrollWindowTo(destination, {
       instant,
-      duration: 0.95,
+      duration: sectionScrollDuration(),
       ease: 'easeInOut',
-      interruptOnInput: !window.matchMedia(desktopController).matches,
+      interruptOnInput: !usesPresentationControls(),
       onComplete: () => {
         if (scrollId !== sectionScrollId.current) return
         programmaticScroll.current = false
@@ -106,11 +108,21 @@ function App() {
 
   const moveToSection = useCallback((path, { commit = false, replace = false, instant = false, focus = true, landing = 'start' } = {}) => {
     if (!routeTargets[path]) return
+    const presentationMode = usesPresentationControls()
+    const shouldCommit = commit && routePath.current !== path
     const id = ++transitionId.current
     transitioning.current = true
-    wheelLocked.current = true
+    wheelLocked.current = presentationMode
     gesture.current = { direction: 0, amount: 0, lastAt: -Infinity }
     currentPath.current = path
+
+    // Compact navigation commits at the tap; touch input can interrupt its short scroll.
+    if (shouldCommit && !presentationMode) {
+      pendingScrollRoute.current = path
+      routePath.current = path
+      navigate(path, { replace })
+    }
+
     enterSection(routeTargets[path], {
       instant,
       focus,
@@ -118,9 +130,11 @@ function App() {
       onComplete: () => {
         if (id !== transitionId.current) return
         transitioning.current = false
-        releaseWhenQuiet()
-        if (commit && location.pathname !== path) {
+        if (presentationMode) releaseWhenQuiet()
+        else wheelLocked.current = false
+        if (shouldCommit && presentationMode) {
           pendingScrollRoute.current = path
+          routePath.current = path
           flushSync(() => navigate(path, { replace }))
         }
       },
@@ -130,13 +144,14 @@ function App() {
         wheelLocked.current = false
         const visiblePath = visibleSectionPath()
         currentPath.current = visiblePath
-        if (visiblePath !== location.pathname) {
+        if (visiblePath !== routePath.current) {
           pendingScrollRoute.current = visiblePath
+          routePath.current = visiblePath
           navigate(visiblePath, { replace: true })
         }
       },
     })
-  }, [enterSection, location.pathname, navigate, releaseWhenQuiet])
+  }, [enterSection, navigate, releaseWhenQuiet])
 
   useEffect(() => {
     const previousRestoration = window.history.scrollRestoration
@@ -160,6 +175,10 @@ function App() {
   }, [])
 
   useLayoutEffect(() => {
+    if (careerDetailVisible) window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [careerDetailVisible])
+
+  useLayoutEffect(() => {
     const routeKey = `${location.pathname}:${location.key}`
     if (routeKey === handledRouteKey.current) return
     handledRouteKey.current = routeKey
@@ -169,6 +188,7 @@ function App() {
     pendingScrollRoute.current = null
     const previousPath = currentPath.current
     currentPath.current = location.pathname
+    routePath.current = location.pathname
     const resetProjects = !fromScroll && location.pathname !== '/projects' && expandedProjectId !== null
     if (resetProjects) setExpandedProjectId(null)
     if (!fromScroll) {
@@ -177,7 +197,7 @@ function App() {
       const options = {
         instant: isInitialRoute.current,
         focus: !isInitialRoute.current,
-        landing: !isInitialRoute.current && targetIndex < previousIndex ? 'end' : 'start',
+        landing: usesPresentationControls() && !isInitialRoute.current && targetIndex < previousIndex ? 'end' : 'start',
       }
       if (resetProjects) {
         pendingRouteFrame.current = window.requestAnimationFrame(() => {
@@ -203,6 +223,7 @@ function App() {
         if (path === currentPath.current) return
         currentPath.current = path
         pendingScrollRoute.current = path
+        routePath.current = path
         navigate(path, { replace: true })
       })
     }
@@ -214,7 +235,7 @@ function App() {
   }, [navigate, isPresentationDetail])
 
   useEffect(() => {
-    const media = window.matchMedia(desktopController)
+    const media = window.matchMedia(presentationMediaQuery)
 
     function moveWithinSection(delta, keyboard = false) {
       const path = currentPath.current
@@ -284,7 +305,7 @@ function App() {
     event.preventDefault()
     window.cancelAnimationFrame(pendingRouteFrame.current)
     if (path !== '/projects' && expandedProjectId !== null) setExpandedProjectId(null)
-    moveToSection(path, { commit: path !== location.pathname })
+    moveToSection(path, { commit: path !== routePath.current })
   }
 
   function handleProjectToggle(id) {
@@ -292,7 +313,7 @@ function App() {
   }
 
   return (
-    <div ref={shellRef} className="site-shell site-shell--career-presentation">
+    <div ref={shellRef} className={`site-shell site-shell--career-presentation${careerDetailVisible ? ' site-shell--career-detail' : ''}`}>
       <SiteNav onNavigate={handleRouteNavigation} hidden={isPresentationDetail} />
       <section id="center" tabIndex={-1}>
         <div className="home-art" aria-hidden="true">
@@ -308,7 +329,7 @@ function App() {
 
         <div className="intro">
           <p className="intro-eyebrow">Banking · Risk · Analytics</p>
-          <h1>Andy Tran<span aria-hidden="true">.</span></h1>
+          <h1>Andy Tran</h1>
 
           <p className="intro-lede">
             Risk and analytics leader with a focus on data, automation, and practical tools.
@@ -338,7 +359,9 @@ function App() {
           roles={careerRoles}
           routeActive={location.pathname === '/career'}
           onDetailChange={setIsPresentationDetail}
-          onReturnToCareer={() => enterSection('career-heading', { instant: true })}
+          onReturnToCareer={() => window.requestAnimationFrame(() => {
+            if (routePath.current === '/career') enterSection('career-heading', { instant: true })
+          })}
         />
 
       <ol className="career-timeline">

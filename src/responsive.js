@@ -24,7 +24,10 @@ export function usePresentationLayout() {
 }
 
 export function sectionScrollDuration() {
-  const value = getComputedStyle(document.documentElement).getPropertyValue('--motion-section')
-  const milliseconds = Number.parseFloat(value)
-  return Number.isFinite(milliseconds) ? milliseconds / 1000 : 0
+  const value = getComputedStyle(document.documentElement).getPropertyValue('--motion-section').trim()
+  const duration = Number.parseFloat(value)
+  if (!Number.isFinite(duration)) return 0
+  if (value.endsWith('ms')) return duration / 1000
+  if (value.endsWith('s')) return duration
+  return 0
 }
